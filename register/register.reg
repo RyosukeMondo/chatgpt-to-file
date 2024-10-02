@@ -1,0 +1,4 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\com.yourdomain.chatgpt_code_capture]
+@="D:\\repos\\chatgpt-to-file\\register\\com.yourdomain.chatgpt_code_capture.json"

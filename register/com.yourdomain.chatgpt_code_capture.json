@@ -1,0 +1,9 @@
+{
+  "name": "com.yourdomain.chatgpt_code_capture",
+  "description": "ChatGPT Code Capture Native Messaging Host",
+  "path": "D:\\repos\\chatgpt-to-file\\app\\receiver.py",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://obbbhaeojcapnfpojkbdgcmbdiaifpag/"
+  ]
+}
