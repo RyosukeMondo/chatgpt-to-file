@@ -5,8 +5,10 @@
   "description": "Capture ChatGPT-generated code snippets and save them to your local PC.",
   "permissions": [
     "storage",
-    "nativeMessaging",
     "scripting"
+  ],
+  "host_permissions": [
+    "ws://localhost:8765/"
   ],
   "options_page": "options.html",
   "background": {
