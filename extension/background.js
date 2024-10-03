@@ -6,15 +6,22 @@ function log(message, ...optionalParams) {
 }
 
 let socket = null;
+let connectedPorts = [];
+let wsStatus = 'disconnected'; // Possible values: 'connected', 'connecting', 'disconnected'
 
 // Initialize WebSocket connection
 function initWebSocket() {
   const wsUrl = 'ws://localhost:8765/';
 
+  wsStatus = 'connecting';
+  sendStatusUpdate();
+
   socket = new WebSocket(wsUrl);
 
   socket.onopen = () => {
+    wsStatus = 'connected';
     log('WebSocket connection established.');
+    sendStatusUpdate();
   };
 
   socket.onmessage = (event) => {
@@ -28,12 +35,16 @@ function initWebSocket() {
   };
 
   socket.onerror = (error) => {
+    wsStatus = 'disconnected';
     log('WebSocket error:', error);
+    sendStatusUpdate();
   };
 
   socket.onclose = (event) => {
+    wsStatus = 'disconnected';
     log(`WebSocket connection closed: Code ${event.code}, Reason: ${event.reason}`);
-    // Optionally attempt to reconnect after a delay
+    sendStatusUpdate();
+    // Attempt to reconnect after a delay
     setTimeout(initWebSocket, 5000);
   };
 }
@@ -81,14 +92,12 @@ function processSnippet(snippet, destination) {
   let relativePath = '';
   let codeContent = '';
   
-  if (snippet.hasFilePath) {
-    const filePathComment = lines[0];
-    const filePathMatch = filePathComment.match(/\/\/\s*(.+)/);
-    if (filePathMatch) {
-      relativePath = filePathMatch[1].trim();
-      codeContent = lines.slice(1).join('\n');
-      log(`Snippet ID ${snippet.id} has file path: ${relativePath}`);
-    }
+  const filePathComment = lines[0];
+  const filePathMatch = filePathComment.match(/(\/\/|#)\s*((.+)\.(.+))/);
+  if (filePathMatch) {
+    relativePath = filePathMatch[2].trim();
+    codeContent = lines.slice(1).join('\n');
+    log(`Snippet ID ${snippet.id} has file path: ${relativePath}`);
   }
 
   if (!relativePath) {
@@ -98,7 +107,7 @@ function processSnippet(snippet, destination) {
     log(`Snippet ID ${snippet.id} does not have a file path. Using fallback filename: ${relativePath}`);
   }
 
-  const fullPath = `${destination}\\${relativePath}`;
+  const fullPath = `${destination}/${relativePath}`; // Use forward slash for cross-platform compatibility
 
   const message = {
     filePath: fullPath,
@@ -106,6 +115,14 @@ function processSnippet(snippet, destination) {
     id: snippet.id
   };
 
+  // Send message to options page to display the snippet
+  chrome.runtime.sendMessage({
+    type: 'DISPLAY_SNIPPET',
+    snippet: {
+      id: snippet.id,
+      content: codeContent
+    }
+  });
   log(`Sending snippet ID ${snippet.id} to WebSocket server.`);
   
   if (socket && socket.readyState === WebSocket.OPEN) {
@@ -115,5 +132,32 @@ function processSnippet(snippet, destination) {
   }
 }
 
-// Initialize WebSocket when the service worker starts
+// Function to send status updates to connected ports
+function sendStatusUpdate() {
+  const status = {
+    tab: connectedPorts.length > 0 ? 'connected' : 'disconnected',
+    background: 'active', // Assuming background is always active if this script is running
+    websocket: wsStatus
+  };
+  connectedPorts.forEach(port => {
+    port.postMessage({ type: 'STATUS_UPDATE', status });
+  });
+}
+
+// Listener for connections from the options page
+chrome.runtime.onConnect.addListener(port => {
+  if (port.name === 'options') {
+    connectedPorts.push(port);
+    log('Options page connected.');
+    sendStatusUpdate();
+
+    port.onDisconnect.addListener(() => {
+      connectedPorts = connectedPorts.filter(p => p !== port);
+      log('Options page disconnected.');
+      sendStatusUpdate();
+    });
+  }
+});
+
+// Initialize the WebSocket connection when the service worker starts
 initWebSocket();
