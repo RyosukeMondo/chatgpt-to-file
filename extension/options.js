@@ -12,6 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusDiv = document.getElementById('status');
   const capturedSnippetsDiv = document.getElementById('capturedSnippets');
 
+  // Connection Status Indicators
+  const tabStatusIndicator = document.getElementById('tab-status');
+  const backgroundStatusIndicator = document.getElementById('background-status');
+  const websocketStatusIndicator = document.getElementById('websocket-status');
+
   // Load saved settings
   chrome.storage.sync.get(['receiverPath', 'destination'], (data) => {
     if (data.receiverPath) receiverPathInput.value = data.receiverPath;
@@ -64,5 +69,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  // Initialize connection with background script for status updates
+  const port = chrome.runtime.connect({ name: 'options' });
+
+  port.onMessage.addListener((msg) => {
+    if (msg.type === 'STATUS_UPDATE') {
+      const { tab, background, websocket } = msg.status;
+      updateIndicator(tabStatusIndicator, tab);
+      updateIndicator(backgroundStatusIndicator, background);
+      updateIndicator(websocketStatusIndicator, websocket);
+      log('Received status update:', msg.status);
+    }
+  });
+
+  // Function to update the color of the status indicator
+  function updateIndicator(element, status) {
+    switch (status) {
+      case 'connected':
+      case 'active':
+        element.style.backgroundColor = 'green';
+        break;
+      case 'connecting':
+        element.style.backgroundColor = 'yellow';
+        break;
+      case 'disconnected':
+      case 'error':
+        element.style.backgroundColor = 'red';
+        break;
+      default:
+        element.style.backgroundColor = 'gray';
+    }
   }
 });

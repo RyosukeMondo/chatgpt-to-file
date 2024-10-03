@@ -6,12 +6,14 @@ import json
 import os
 import logging
 
+
 # Configure logging
 logging.basicConfig(
     filename='websocket_receiver.log',
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+
 
 async def save_file(full_path, content):
     try:
@@ -36,6 +38,7 @@ async def save_file(full_path, content):
     except Exception as e:
         logging.error(f'Error saving file {full_path}: {e}')
         raise
+
 
 async def handler(websocket, path):
     logging.info('Client connected.')
@@ -72,6 +75,7 @@ async def handler(websocket, path):
                 logging.error('Invalid JSON format received.')
     except websockets.exceptions.ConnectionClosed as e:
         logging.info(f'Connection closed: {e}')
+
 
 async def main():
     server = await websockets.serve(handler, 'localhost', 8765)

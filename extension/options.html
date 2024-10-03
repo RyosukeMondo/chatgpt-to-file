@@ -12,10 +12,37 @@
     .snippet { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
     .snippet-id { font-weight: bold; }
     pre { background-color: #f4f4f4; padding: 10px; }
+
+    /* New Styles for Connection Indicators */
+    .connection-status {
+      margin-top: 30px;
+    }
+    .status-container {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .status-indicator {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-right: 10px;
+      background-color: gray; /* Default color */
+      border: 1px solid #ccc;
+    }
+    .status-label {
+      font-size: 14px;
+      color: #333;
+    }
+    .connection-title {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Options</h1>
+  
   <label for="receiverPath">Receiver Path:</label>
   <input type="text" id="receiverPath" placeholder="e.g., C:\\users\\user\\receiver\\receiver.exe or python.exe">
 
@@ -24,6 +51,26 @@
 
   <button id="save">Save</button>
   <div id="status"></div>
+
+  <!-- New Connection Status Section -->
+  <div class="connection-status">
+    <div class="connection-title">Connection Status</div>
+    
+    <div class="status-container">
+      <div id="tab-status" class="status-indicator"></div>
+      <div class="status-label">Tab Connection</div>
+    </div>
+    
+    <div class="status-container">
+      <div id="background-status" class="status-indicator"></div>
+      <div class="status-label">Background Connection</div>
+    </div>
+    
+    <div class="status-container">
+      <div id="websocket-status" class="status-indicator"></div>
+      <div class="status-label">WebSocket Connection</div>
+    </div>
+  </div>
 
   <h2>Captured Code Snippets</h2>
   <div id="capturedSnippets"></div>
