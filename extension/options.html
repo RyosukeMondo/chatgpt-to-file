@@ -7,6 +7,11 @@
     label { display: block; margin-top: 10px; }
     input { width: 100%; padding: 8px; margin-top: 5px; }
     button { margin-top: 20px; padding: 10px 20px; }
+    #status { margin-top: 10px; color: green; }
+    #capturedSnippets { margin-top: 20px; max-height: 400px; overflow-y: auto; }
+    .snippet { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    .snippet-id { font-weight: bold; }
+    pre { background-color: #f4f4f4; padding: 10px; }
   </style>
 </head>
 <body>
@@ -19,6 +24,9 @@
 
   <button id="save">Save</button>
   <div id="status"></div>
+
+  <h2>Captured Code Snippets</h2>
+  <div id="capturedSnippets"></div>
 
   <script src="options.js"></script>
 </body>
