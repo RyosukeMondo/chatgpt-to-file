@@ -46,7 +46,9 @@ observer.observe(document.body, {
     subtree: true
 });
 
-// Initial check for existing <pre> elements
-document.querySelectorAll('pre.\\!overflow-visible')?.forEach(preElement => {
-    addToggleButton(preElement);
-});
+setTimeout(() => {
+    console.log('Initial check for existing <pre> elements');
+    document.querySelectorAll('pre.\\!overflow-visible')?.forEach(preElement => {
+        addToggleButton(preElement);
+    });
+}, 3000);
