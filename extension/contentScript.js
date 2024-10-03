@@ -83,7 +83,6 @@
   // Initial setup
   function init() {
     initObserver();
-    addDebugButtons();
   }
 
   // Start the observer and add debug buttons

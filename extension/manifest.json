@@ -17,7 +17,7 @@
   "content_scripts": [
     {
       "matches": ["https://chatgpt.com/*"],
-      "js": ["contentScript.js"]
+      "js": ["contentScript.js", "content_code_toggler.js"]
     }
   ],
   "icons": {
