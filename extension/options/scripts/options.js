@@ -59,20 +59,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (msg.type === 'DISPLAY_SNIPPET') {
       UI.displaySnippet(capturedSnippetsDiv, msg.snippet);
     } else if (msg.type === 'DISPLAY_FILE') {
-      saveFile(msg.file);
+      saveFile(msg.filePath, msg.content);
     }
   });
 
   // Function to save received file
-  function saveFile(file) {
-    const { filePath, content } = file;
+  function saveFile(filePath, content) {
+    log('saveFile called with file:', filePath, content.length);
     const normalizedFilePath = normalizePath(filePath);
     const destination = normalizePath(destinationInput.value.trim());
     if (!destination) {
       log('Save failed: Missing destination.');
       return;
     }
-    Storage.saveFileToLocal(destination, normalizedFilePath, content);
+    Storage.saveFileToLocal(normalizedFilePath, content);
     UI.addFileToList(fileListDiv, { filePath: normalizedFilePath });
   }
 
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (message.type === 'DISPLAY_SNIPPET') {
       UI.displaySnippet(capturedSnippetsDiv, message.snippet);
     } else if (message.type === 'DISPLAY_FILE') {
-      saveFile(message.file);
+      saveFile(message.filePath, message.content);
     }
   });
 });

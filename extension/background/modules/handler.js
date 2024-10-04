@@ -9,7 +9,8 @@ export const Handler = {
       log(`Received file content for path: ${response.filePath}`);
       Messaging.sendMessageToOptions({
         type: 'DISPLAY_FILE',
-        file: response.file,
+        filePath: response.filePath,
+        content: response.content,
       });
     } else if (response.status === 'success') {
       log(`Snippet ID ${response.id} saved to ${response.savedPath}`);

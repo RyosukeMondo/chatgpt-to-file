@@ -27,10 +27,9 @@ export const Storage = {
     });
   },
 
-  saveFileToLocal(destination, filePath, content) {
-    const normalizedDestination = normalizePath(destination);
+  saveFileToLocal(filePath, content) {
     const normalizedFilePath = normalizePath(filePath);
-    const key = `${normalizedDestination}/${normalizedFilePath}`;
+    const key = `${normalizedFilePath}`;
     localStorage.setItem(key, content);
     log(`Saved file to localStorage with key ${key}`);
   },
@@ -40,9 +39,9 @@ export const Storage = {
     const files = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
+      // localStorage.removeItem(key);
       if (normalizePath(key).startsWith(normalizedDestination)) {
-        const relativePath = normalizePath(key).replace(`${normalizedDestination}`, '');
-        files.push({ filePath: relativePath });
+        files.push({ filePath: key });
       }
     }
     return files;

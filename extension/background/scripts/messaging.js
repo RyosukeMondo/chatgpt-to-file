@@ -127,8 +127,12 @@ export const Messaging = {
   },
 
   sendMessageToOptions(message) {
+    log('sendMessageToOptions called with message:', message);
+    log('Connected ports:', this.connectedPorts.length);
     this.connectedPorts.forEach((port) => {
+      log('Sending message to port:', port);
       port.postMessage(message);
+      log('Message sent to port:', port);
     });
   },
 

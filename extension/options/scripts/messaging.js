@@ -16,7 +16,7 @@ export const Messaging = {
       } else if (msg.type === 'DISPLAY_SNIPPET') {
         displaySnippetCallback(msg.snippet);
       } else if (msg.type === 'DISPLAY_FILE') {
-        saveFileCallback(msg.file);
+        saveFileCallback(msg.filePath, msg.content);
       }
     });
   },
