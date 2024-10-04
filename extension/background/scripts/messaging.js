@@ -24,7 +24,7 @@ export const Messaging = {
       log('Message received:', message, sender);
 
       if (message.type === 'NEW_SNIPPETS') {
-        this.handleNewSnippets(message.snippets, message.isDebug);
+        this.handleNewSnippets(message.snippets);
       }
       if (message.type === 'SYNC') {
         log('Received sync request from options page.');
@@ -34,8 +34,8 @@ export const Messaging = {
     });
   },
 
-  async handleNewSnippets(snippets, isDebug) {
-    log(`Handling ${snippets.length} new snippets. Debug mode: ${isDebug}`);
+  async handleNewSnippets(snippets) {
+    log(`Handling ${snippets.length} new snippets.`);
 
     // Retrieve user settings
     chrome.storage.sync.get(['destination'], (data) => {
@@ -79,7 +79,7 @@ export const Messaging = {
     const filePathMatch = filePathComment.match(/(\/\/|#)\s*((.+)\.(.+))/);
     if (filePathMatch) {
       relativePath = filePathMatch[2].trim();
-      codeContent = lines.slice(1).join('\n');
+      codeContent = lines.join('\n');
       log(`Snippet ID ${snippet.id} has file path: ${relativePath}`);
     }
 

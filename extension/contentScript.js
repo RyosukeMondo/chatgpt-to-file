@@ -46,7 +46,7 @@
   }
 
   // Function to send a snippet to the background script
-  function sendSnippet(snippet, isDebug = false) {
+  function sendSnippet(snippet) {
     if (sentSnippetIds.has(snippet.id)) {
       log(`Snippet ID ${snippet.id} already sent. Skipping.`);
       return;
@@ -55,7 +55,7 @@
     log(`Sending snippet ID ${snippet.id} to background...`);
 
     if (typeof chrome.runtime !== 'undefined' && typeof chrome.runtime.sendMessage === 'function') {
-      chrome.runtime.sendMessage({ type: 'NEW_SNIPPETS', snippets: [snippet], isDebug: isDebug }, (response) => {
+      chrome.runtime.sendMessage({ type: 'NEW_SNIPPETS', snippets: [snippet] }, (response) => {
         sentSnippetIds.add(snippet.id);
         if (chrome.runtime.lastError) {
           log('Error sending snippets to background:', chrome.runtime.lastError.message);
