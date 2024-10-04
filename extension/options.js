@@ -8,6 +8,7 @@ function log(message, ...optionalParams) {
 document.addEventListener('DOMContentLoaded', () => {
   const destinationInput = document.getElementById('destination');
   const saveButton = document.getElementById('save');
+  const syncButton = document.getElementById('sync');
   const statusDiv = document.getElementById('status');
   const capturedSnippetsDiv = document.getElementById('capturedSnippets');
 
@@ -24,7 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Save settings
   saveButton.addEventListener('click', () => {
-    const destination = destinationInput.value.trim();
+    // \ -> \, put / at the end, remove multiple /s
+    const destination = (destinationInput.value.trim() + "/").replace(/\\/g, '/').replace(/\/+/g, '/');
 
     // Basic validation
     if (!destination) {
@@ -40,6 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
       log('Settings saved:', { destination });
       setTimeout(() => { statusDiv.textContent = ''; }, 3000);
     });
+  });
+
+  // Sync button send message to background script
+  syncButton.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ type: 'SYNC' });
+    log('Sent sync request to background script.');
   });
 
   // Listen for messages from background script to display captured snippets

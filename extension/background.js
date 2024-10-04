@@ -60,16 +60,20 @@ function handleServerResponse(response) {
 
 // Listener for messages from content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  log('Message received:', message);
+  log('Message received:', message, sender);
 
   if (message.type === 'NEW_SNIPPETS') {
     handleNewSnippets(message.snippets, message.isDebug);
   }
+  if (message.type === 'SYNC') {
+    log('Received sync request from background script.');
+    handleSyncRequest();
+  }
 });
 
 // Function to handle new snippets
-function handleNewSnippets(snippets, isDebug) {
-  log(`Handling ${snippets.length} new snippets. Debug mode: ${isDebug}`);
+function handleNewSnippets(snippets) {
+  log(`Handling ${snippets.length} new snippets.`);
 
   // Retrieve user settings
   chrome.storage.sync.get(['destination'], (data) => {
@@ -83,6 +87,27 @@ function handleNewSnippets(snippets, isDebug) {
     snippets.forEach(snippet => {
       processSnippet(snippet, destination);
     });
+  });
+}
+
+function handleNewSnippets() {
+  log(`Handling ${snippets.length} new snippets.`);
+
+  // Retrieve user settings
+  chrome.storage.sync.get(['destination'], (data) => {
+    const { destination } = data;
+
+    if (!destination) {
+      log('Destination not set.');
+      return;
+    }
+
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      // send sync request to server with destination
+      socket.send(JSON.stringify({ type: 'SYNC', destination }));
+    } else {
+      log('WebSocket is not connected. Cannot send message.');
+    }
   });
 }
 
