@@ -6,7 +6,6 @@ function log(message, ...optionalParams) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const receiverPathInput = document.getElementById('receiverPath');
   const destinationInput = document.getElementById('destination');
   const saveButton = document.getElementById('save');
   const statusDiv = document.getElementById('status');
@@ -18,29 +17,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const websocketStatusIndicator = document.getElementById('websocket-status');
 
   // Load saved settings
-  chrome.storage.sync.get(['receiverPath', 'destination'], (data) => {
-    if (data.receiverPath) receiverPathInput.value = data.receiverPath;
+  chrome.storage.sync.get(['destination'], (data) => {
     if (data.destination) destinationInput.value = data.destination;
     log('Settings loaded:', data);
   });
 
   // Save settings
   saveButton.addEventListener('click', () => {
-    const receiverPath = receiverPathInput.value.trim();
     const destination = destinationInput.value.trim();
 
     // Basic validation
-    if (!receiverPath || !destination) {
+    if (!destination) {
       statusDiv.textContent = 'Both fields are required.';
       statusDiv.style.color = 'red';
-      log('Save failed: Missing receiverPath or destination.');
+      log('Save failed: Missing destination.');
       return;
     }
 
-    chrome.storage.sync.set({ receiverPath, destination }, () => {
+    chrome.storage.sync.set({ destination }, () => {
       statusDiv.textContent = 'Options saved successfully!';
       statusDiv.style.color = 'green';
-      log('Settings saved:', { receiverPath, destination });
+      log('Settings saved:', { destination });
       setTimeout(() => { statusDiv.textContent = ''; }, 3000);
     });
   });
