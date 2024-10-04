@@ -20,6 +20,20 @@ const Messaging = (() => {
     if (typeof chrome.runtime !== 'undefined' && typeof chrome.runtime.onMessage.addListener === 'function') {
       chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         ContentUtils.log('Message received:', message, sender);
+        
+        if (message.type === 'APPEND_PROMPT') {
+          // Handle APPEND_PROMPT message
+          const promptMessage = message.message;
+          // Perform the necessary action with promptMessage
+          ContentUtils.log('APPEND_PROMPT message received:', promptMessage);
+          // Example: Append the prompt message to a specific element
+          const promptElement = document.getElementById('prompt-textarea');
+          if (promptElement) {
+            const formattedMessage = promptMessage.replace(/\n/g, '<br>');
+            promptElement.innerHTML += `<br>${formattedMessage}`;
+          }
+        }
+
         callback(message, sender, sendResponse);
       });
     } else {

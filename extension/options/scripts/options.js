@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     Storage.saveFileToLocal(normalizedFilePath, content);
-    UI.addFileToList(fileListDiv, { filePath: normalizedFilePath });
+    UI.addFileToList(fileListDiv, { filePath: normalizedFilePath, content });
   }
 
   // Function to load files for the current destination

@@ -4,6 +4,8 @@
   "version": "1.0",
   "description": "Capture ChatGPT-generated code snippets and save them to your local PC.",
   "permissions": [
+    "tabs",
+    "activeTab",
     "storage",
     "scripting"
   ],

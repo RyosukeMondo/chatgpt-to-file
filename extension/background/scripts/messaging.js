@@ -31,6 +31,16 @@ export const Messaging = {
         this.handleSyncRequest();
         sendResponse({ status: 'received' });
       }
+      if (message.type === 'SEND_TO_CHAT') {
+        chrome.tabs.query({}, (tabs) => {
+          const tabUrls = tabs.map((tab) => tab.url);
+          tabs.forEach((tab) => {
+            if (tab.url && tab.url.startsWith('https://chatgpt.com/')) {
+              chrome.tabs.sendMessage(tab.id, { type: 'APPEND_PROMPT', message: message.content });
+            }
+          });
+        });
+      }
     });
   },
 

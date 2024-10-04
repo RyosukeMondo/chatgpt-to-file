@@ -2,6 +2,7 @@
 
 import { escapeHtml, log } from './utils.js';
 import { Storage } from './storage.js';
+import { Messaging } from './messaging.js';
 
 export const UI = {
   initElements() {
@@ -45,7 +46,7 @@ export const UI = {
   },
 
   addFileToList(fileListDiv, file) {
-    const { filePath } = file;
+    const { filePath, content } = file;
     const existingFiles = Array.from(fileListDiv.children).map(item => item.getAttribute('data-filepath'));
 
     if (!existingFiles.includes(filePath)) {
@@ -55,6 +56,7 @@ export const UI = {
       fileItem.innerHTML = `
         <button class="view-button" data-filepath="${filePath}">View</button>
         <button class="delete-button" data-filepath="${filePath}">Delete</button>
+        <button class="send-to-chat" data-filepath="${filePath}">append prompt</button>
         <strong>File:</strong> ${filePath}
         <pre class="file-content" style="display: none;"></pre>
       `;
@@ -67,6 +69,9 @@ export const UI = {
       });
       fileItem.querySelector('.delete-button').addEventListener('click', () => {
         UI.deleteFile(filePath, fileListDiv);
+      });
+      fileItem.querySelector('.send-to-chat').addEventListener('click', () => {
+        UI.sendToChat(filePath);
       });
     }
   },
@@ -95,6 +100,16 @@ export const UI = {
         log(`Deleted file: ${filePath}`);
       }
     }
+  },
+
+  sendToChat(filePath) {
+    const content = Storage.getFileContent(filePath);
+    const message = {
+      type: 'SEND_TO_CHAT',
+      content,
+    };
+    Messaging.sendMessage(message);
+    log(`Sent file content to chat: ${filePath}`);
   },
 
   updateIndicator(element, status) {
