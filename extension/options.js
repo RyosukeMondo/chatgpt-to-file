@@ -1,8 +1,11 @@
-// options.js
-
 // Utility function for logging
 function log(message, ...optionalParams) {
   console.log(`[OptionsPage] ${message}`, ...optionalParams);
+}
+
+// Utility function to normalize file paths
+function normalizePath(path) {
+  return path.replace(/\\/g, '/').replace(/\/+/g, '/').replace(/^\.\//, '');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,44 +23,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load saved settings
   chrome.storage.sync.get(['destination'], (data) => {
-    if (data.destination) destinationInput.value = data.destination;
+    if (data.destination) {
+      destinationInput.value = data.destination;
+      loadFilesForDestination(data.destination); // Load files for current destination
+    }
     log('Settings loaded:', data);
   });
 
   // Save settings
   saveButton.addEventListener('click', () => {
-    // \ -> \, put / at the end, remove multiple /s
-    const destination = (destinationInput.value.trim() + "/").replace(/\\/g, '/').replace(/\/+/g, '/');
-
-    // Basic validation
+    const destination = normalizePath(destinationInput.value.trim());
     if (!destination) {
-      statusDiv.textContent = 'Both fields are required.';
-      statusDiv.style.color = 'red';
+      displayStatus('Destination path is required.', 'error');
       log('Save failed: Missing destination.');
       return;
     }
-
+    clearFilesForDestination(destination); // Clear existing files for the current destination
     chrome.storage.sync.set({ destination }, () => {
-      statusDiv.textContent = 'Options saved successfully!';
-      statusDiv.style.color = 'green';
+      displayStatus('Options saved successfully!', 'success');
       log('Settings saved:', { destination });
-      setTimeout(() => { statusDiv.textContent = ''; }, 3000);
+      loadFilesForDestination(destination); // Load files for new destination
+      setTimeout(() => { clearStatus(); }, 3000);
     });
   });
 
   // Sync button send message to background script
   syncButton.addEventListener('click', () => {
-    chrome.runtime.sendMessage({ type: 'SYNC' });
-    log('Sent sync request to background script.');
+    chrome.runtime.sendMessage({ type: 'SYNC' }, (response) => {
+      if (chrome.runtime.lastError) {
+        displayStatus('Failed to send sync request.', 'error');
+        log('Sync request failed:', chrome.runtime.lastError);
+      } else {
+        displayStatus('Sync request sent.', 'success');
+        log('Sent sync request to background script.');
+      }
+    });
   });
 
-  // Listen for messages from background script to display captured snippets
+  // Listen for messages from background script to display captured snippets and files
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'DISPLAY_SNIPPET') {
       displaySnippet(message.snippet);
     } else if (message.type === 'DISPLAY_FILE') {
       saveFile(message.file);
-      addFileToList(message.file);
     }
   });
 
@@ -76,26 +84,117 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to save received file
   function saveFile(file) {
     const { filePath, content } = file;
-    const fullPath = `${destinationInput.value}/${filePath}`.replace(/\\/g, '/').replace(/\/+/g, '/');
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fullPath;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    log(`Saved file to ${fullPath}`);
+    const normalizedFilePath = normalizePath(filePath);
+
+    // Get current destination
+    const destination = normalizePath(document.getElementById('destination').value.trim());
+    if (!destination) {
+      log('Save failed: Missing destination.');
+      return;
+    }
+
+    // Save to localStorage with key as destination + normalizedFilePath
+    const key = `${destination}/${normalizedFilePath}`;
+    localStorage.setItem(key, content);
+    log(`Saved file to localStorage with key ${key}`);
+
+    // Update file list
+    addFileToList({ filePath: normalizedFilePath });
   }
 
   // Function to add received file to the list
   function addFileToList(file) {
-    const fileItem = document.createElement('div');
-    fileItem.className = 'file-item';
-    fileItem.textContent = `File: ${file.filePath}`;
-    fileListDiv.appendChild(fileItem);
-    log(`Added file to list: ${file.filePath}`);
+    const filePath = file.filePath;
+    const existingFiles = Array.from(fileListDiv.children).map(item => item.getAttribute('data-filepath'));
+
+    // Check if file is already in the list
+    if (!existingFiles.includes(filePath)) {
+      const fileItem = document.createElement('div');
+      fileItem.className = 'file-item';
+      fileItem.setAttribute('data-filepath', filePath);
+      fileItem.innerHTML = `
+        <button class="view-button" data-filepath="${filePath}">View</button>
+        <button class="delete-button" data-filepath="${filePath}">Delete</button>
+        <strong>File:</strong> ${filePath}
+        <pre class="file-content" style="display: none;"></pre>
+      `;
+      fileListDiv.appendChild(fileItem);
+      log(`Added file to list: ${filePath}`);
+
+      // Add event listeners for View and Delete buttons
+      fileItem.querySelector('.view-button').addEventListener('click', () => toggleFileContent(filePath));
+      fileItem.querySelector('.delete-button').addEventListener('click', () => deleteFile(filePath));
+    }
+  }
+
+  // Function to toggle file content visibility
+  function toggleFileContent(filePath) {
+    const fileItem = Array.from(fileListDiv.children).find(item => item.getAttribute('data-filepath') === filePath);
+    if (fileItem) {
+      const contentPre = fileItem.querySelector('.file-content');
+      if (contentPre.style.display === 'none') {
+        const content = localStorage.getItem(filePath) || 'No content available.';
+        contentPre.textContent = content;
+        contentPre.style.display = 'block';
+      } else {
+        contentPre.style.display = 'none';
+      }
+    }
+  }
+
+  // Function to delete a file
+  function deleteFile(filePath) {
+    if (confirm(`Are you sure you want to delete ${filePath}?`)) {
+      localStorage.removeItem(filePath);
+      const fileItem = Array.from(fileListDiv.children).find(item => item.getAttribute('data-filepath') === filePath);
+      if (fileItem) {
+        fileListDiv.removeChild(fileItem);
+        log(`Deleted file: ${filePath}`);
+      }
+    }
+  }
+
+  // Function to load files for the current destination
+  function loadFilesForDestination(destination) {
+    fileListDiv.innerHTML = ''; // Clear current list
+    const normalizedDestination = normalizePath(destination);
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (normalizePath(key).startsWith(normalizedDestination)) {
+        const relativePath = normalizePath(key).replace(`${normalizedDestination}`, '');
+        addFileToList({ filePath: relativePath });
+      }
+    }
+  }
+
+  // Function to clear files for the current destination
+  function clearFilesForDestination(destination) {
+    const keysToRemove = [];
+    const normalizedDestination = normalizePath(destination);
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (normalizePath(key).startsWith(normalizedDestination)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    log(`Cleared files for destination: ${destination}`);
+  }
+
+  // Function to display status messages
+  function displayStatus(message, type) {
+    statusDiv.textContent = message;
+    if (type === 'success') {
+      statusDiv.className = 'status-success';
+    } else if (type === 'error') {
+      statusDiv.className = 'status-error';
+    }
+  }
+
+  // Function to clear status messages
+  function clearStatus() {
+    statusDiv.textContent = '';
+    statusDiv.className = '';
   }
 
   // Function to escape HTML to prevent XSS

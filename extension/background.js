@@ -79,6 +79,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'SYNC') {
     log('Received sync request from options page.');
     handleSyncRequest();
+    sendResponse({ status: 'received' });
   }
 });
 

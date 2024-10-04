@@ -46,17 +46,22 @@ async def send_all_files(websocket, destination):
         # Gitで追跡されているファイルのリストを取得
         result = subprocess.run(['git', 'ls-files'], cwd=destination, capture_output=True, text=True)
         tracked_files = result.stdout.splitlines()
+        # ignore binary files
+        ignore_exts = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg', '.pdf', '.mp4', '.avi', '.mov', '.mp3', '.wav', '.zip', '.tar', '.gz', '.7z', '.rar', '.exe', '.dll', '.so', '.a', '.lib', '.o', '.obj', '.class', '.jar', '.war', '.ear', '.swf', '.flv', '.psd', '.ai', '.eps', '.ttf', '.woff', '.woff2', '.eot', '.otf', '.db', '.sqlite', '.sqlite3', '.db3', '.sql', '.bak', '.log', '.tmp', '.temp', '.cache', '.bak', '.backup', '.old', '.swp', '.swo', '.swn', '.swo', '.swn']
 
         for file in tracked_files:
+            if any(file.endswith(ext) for ext in ignore_exts):
+                continue
             file_path = os.path.join(destination, file)
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-            relative_path = os.path.relpath(file_path, destination)
+            relative_path = os.path.relpath(file_path, destination).replace(os.sep, '/')
             message = {
                 'type': 'FILE_CONTENT',
                 'filePath': relative_path,
                 'content': content
             }
+            print("sent:", relative_path)
             await websocket.send(json.dumps(message))
             logging.debug(f'Sent file content: {file_path}')
     except Exception as e:
