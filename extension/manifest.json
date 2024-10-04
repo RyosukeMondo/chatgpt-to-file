@@ -18,7 +18,15 @@
   "content_scripts": [
     {
       "matches": ["https://chatgpt.com/*"],
-      "js": ["contentScript.js", "content_code_toggler.js"]
+      "js": [
+        "content/scripts/utils.js",
+        "content/scripts/messaging.js",
+        "content/scripts/toggler.js",
+        "content/scripts/snippetExtractor.js",
+        "content/scripts/observer.js",
+        "content/scripts/main.js"
+      ],
+      "css": ["content/styles/content.css"]
     }
   ],
   "icons": {
