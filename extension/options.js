@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const syncButton = document.getElementById('sync');
   const statusDiv = document.getElementById('status');
   const capturedSnippetsDiv = document.getElementById('capturedSnippets');
+  const fileListDiv = document.getElementById('fileList');
 
   // Connection Status Indicators
   const tabStatusIndicator = document.getElementById('tab-status');
@@ -54,6 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'DISPLAY_SNIPPET') {
       displaySnippet(message.snippet);
+    } else if (message.type === 'DISPLAY_FILE') {
+      saveFile(message.file);
+      addFileToList(message.file);
     }
   });
 
@@ -67,6 +71,31 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     capturedSnippetsDiv.prepend(snippetDiv);
     log(`Displayed snippet ID ${snippet.id} on options page.`);
+  }
+
+  // Function to save received file
+  function saveFile(file) {
+    const { filePath, content } = file;
+    const fullPath = `${destinationInput.value}/${filePath}`.replace(/\\/g, '/').replace(/\/+/g, '/');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fullPath;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    log(`Saved file to ${fullPath}`);
+  }
+
+  // Function to add received file to the list
+  function addFileToList(file) {
+    const fileItem = document.createElement('div');
+    fileItem.className = 'file-item';
+    fileItem.textContent = `File: ${file.filePath}`;
+    fileListDiv.appendChild(fileItem);
+    log(`Added file to list: ${file.filePath}`);
   }
 
   // Function to escape HTML to prevent XSS

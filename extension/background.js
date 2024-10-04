@@ -51,11 +51,22 @@ function initWebSocket() {
 
 // Handle responses from the server
 function handleServerResponse(response) {
-  if (response.status === 'success') {
+  if (response.type === 'FILE_CONTENT') {
+    log(`Received file content for path: ${response.filePath}`);
+    sendFileToOptionsPage(response);
+  } else if (response.status === 'success') {
     log(`Snippet ID ${response.id} saved to ${response.savedPath}`);
   } else if (response.status === 'error') {
     log(`Failed to save snippet ID ${response.id}: ${response.message}`);
   }
+}
+
+// Send file content to options page
+function sendFileToOptionsPage(file) {
+  chrome.runtime.sendMessage({
+    type: 'DISPLAY_FILE',
+    file
+  });
 }
 
 // Listener for messages from content scripts
@@ -66,7 +77,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleNewSnippets(message.snippets, message.isDebug);
   }
   if (message.type === 'SYNC') {
-    log('Received sync request from background script.');
+    log('Received sync request from options page.');
     handleSyncRequest();
   }
 });
@@ -90,10 +101,8 @@ function handleNewSnippets(snippets) {
   });
 }
 
-function handleNewSnippets() {
-  log(`Handling ${snippets.length} new snippets.`);
-
-  // Retrieve user settings
+// Function to handle sync request
+function handleSyncRequest() {
   chrome.storage.sync.get(['destination'], (data) => {
     const { destination } = data;
 

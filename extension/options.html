@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>ChatGPT Code Capture - Options</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Options</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     label { display: block; margin-top: 10px; }
@@ -38,18 +40,25 @@
       font-size: 18px;
       margin-bottom: 10px;
     }
+
+    /* Add some basic styling */
+    .file-list {
+      margin-top: 20px;
+    }
+    .file-item {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Options</h1>
-  
-  <label for="destination">Destination Directory:</label>
-  <input type="text" id="destination" placeholder="e.g., C:\users\user\downloads">
-
-  <!-- align button in holizontal -->
-  <button id="save">Save</button>
+  <div>
+    <label for="destination">Destination:</label>
+    <input type="text" id="destination">
+    <button id="save">Save</button>
+    <button id="sync">Sync</button>
+  </div>
   <div id="status"></div>
-  <button id="sync">Sync</button>
 
   <!-- Connection Status Section -->
   <div class="connection-status">
@@ -73,6 +82,10 @@
 
   <h2>Captured Code Snippets</h2>
   <div id="capturedSnippets"></div>
+
+  <div class="file-list" id="fileList">
+    <h2>Received Files</h2>
+  </div>
 
   <script src="options.js"></script>
 </body>

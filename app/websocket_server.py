@@ -5,6 +5,7 @@ import websockets
 import json
 import os
 import logging
+import subprocess
 
 
 # Configure logging
@@ -40,6 +41,28 @@ async def save_file(full_path, content):
         raise
 
 
+async def send_all_files(websocket, destination):
+    try:
+        # Gitで追跡されているファイルのリストを取得
+        result = subprocess.run(['git', 'ls-files'], cwd=destination, capture_output=True, text=True)
+        tracked_files = result.stdout.splitlines()
+
+        for file in tracked_files:
+            file_path = os.path.join(destination, file)
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            relative_path = os.path.relpath(file_path, destination)
+            message = {
+                'type': 'FILE_CONTENT',
+                'filePath': relative_path,
+                'content': content
+            }
+            await websocket.send(json.dumps(message))
+            logging.debug(f'Sent file content: {file_path}')
+    except Exception as e:
+        logging.error(f'Error sending files: {e}')
+
+
 async def handler(websocket, path):
     logging.info('Client connected.')
     try:
@@ -47,25 +70,30 @@ async def handler(websocket, path):
             logging.debug(f'Received message: {message}')
             try:
                 data = json.loads(message)
-                file_path = data.get('filePath')
-                content = data.get('content')
-                snippet_id = data.get('id')
-
-                if file_path and content:
-                    saved_path = await save_file(file_path, content)
-                    response = {
-                        'status': 'success',
-                        'savedPath': saved_path,
-                        'id': snippet_id
-                    }
+                message_type = data.get('type')
+                if message_type == 'SYNC':
+                    destination = data.get('destination')
+                    await send_all_files(websocket, destination)
                 else:
-                    response = {
-                        'status': 'error',
-                        'message': 'Invalid message format.',
-                        'id': snippet_id
-                    }
-                await websocket.send(json.dumps(response))
-                logging.debug(f'Sent response: {response}')
+                    file_path = data.get('filePath')
+                    content = data.get('content')
+                    snippet_id = data.get('id')
+
+                    if file_path and content:
+                        saved_path = await save_file(file_path, content)
+                        response = {
+                            'status': 'success',
+                            'savedPath': saved_path,
+                            'id': snippet_id
+                        }
+                    else:
+                        response = {
+                            'status': 'error',
+                            'message': 'Invalid message format.',
+                            'id': snippet_id
+                        }
+                    await websocket.send(json.dumps(response))
+                    logging.debug(f'Sent response: {response}')
             except json.JSONDecodeError:
                 response = {
                     'status': 'error',
