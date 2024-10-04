@@ -1,0 +1,186 @@
+/* styles/options.css */
+
+body {
+    font-family: Arial, sans-serif;
+    padding: 30px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+h1,
+h2 {
+    color: #4CAF50;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 8px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+#save {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#save:hover {
+    background-color: #45a049;
+}
+
+#sync {
+    background-color: #008CBA;
+    color: white;
+}
+
+#sync:hover {
+    background-color: #007bb5;
+}
+
+#status {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.status-success {
+    color: green;
+}
+
+.status-error {
+    color: red;
+}
+
+.connection-status {
+    margin-top: 30px;
+}
+
+.connection-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.status-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.status-indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 10px;
+    background-color: gray;
+    /* Default color */
+    border: 1px solid #ccc;
+}
+
+.status-label {
+    font-size: 14px;
+    color: #555;
+}
+
+#capturedSnippets,
+#fileList {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.snippet,
+.file-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.snippet:last-child,
+.file-item:last-child {
+    border-bottom: none;
+}
+
+.snippet-id {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+pre {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .button-group {
+        flex-direction: column;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+
+.status-success {
+    color: green;
+}
+
+.status-error {
+    color: red;
+}
+
+.snippet {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.file-item {
+    border: 1px solid #ddd;
+    padding: 8px;
+    margin-bottom: 5px;
+}
+
+.file-content {
+    background-color: #f9f9f9;
+    padding: 5px;
+}
+
+button {
+    margin-right: 5px;
+}
