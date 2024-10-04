@@ -53,14 +53,19 @@
     }
 
     log(`Sending snippet ID ${snippet.id} to background...`);
-    chrome.runtime.sendMessage({ type: 'NEW_SNIPPETS', snippets: [snippet], isDebug: isDebug }, (response) => {
-      sentSnippetIds.add(snippet.id);
-      if (chrome.runtime.lastError) {
-        log('Error sending snippets to background:', chrome.runtime.lastError.message);
-      } else {
-        log(`Snippet ID ${snippet.id} sent to background successfully.`);
-      }
-    });
+
+    if (typeof chrome.runtime !== 'undefined' && typeof chrome.runtime.sendMessage === 'function') {
+      chrome.runtime.sendMessage({ type: 'NEW_SNIPPETS', snippets: [snippet], isDebug: isDebug }, (response) => {
+        sentSnippetIds.add(snippet.id);
+        if (chrome.runtime.lastError) {
+          log('Error sending snippets to background:', chrome.runtime.lastError.message);
+        } else {
+          log(`Snippet ID ${snippet.id} sent to background successfully.`);
+        }
+      });
+    } else {
+      log('Error: chrome.runtime or chrome.runtime.sendMessage is not available.');
+    }
   }
 
   // Observer callback
