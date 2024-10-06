@@ -58,7 +58,7 @@ const Messaging = (() => {
   }
 
   function updatePromptContent(promptMessage, promptElement) {
-    if (promptMessage.includes("")) {
+    if (promptMessage.includes("<DOCTYPE html>")) {
       promptElement.textContent = "html not supported.";
     } else {
       const formattedMessage = formatMessage(promptMessage);
@@ -66,10 +66,18 @@ const Messaging = (() => {
     }
   }
 
+  function escapeHTML(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // wrap each line in <p> tags
   function formatMessage(message) {
-    return message.split('\n').map(line => `
-${line}
-`).join('');
+    return message.split('\n').map(line => `<p>${escapeHTML(line)}</p>`).join('');
   }
 
   function sendAliveMessage() {
