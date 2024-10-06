@@ -2,143 +2,141 @@ import { log } from './utils.js';
 
 export const Messaging = {
   connectedPorts: [],
-  contentScriptAlive: false, // Track content script status
+  contentScriptAlive: false, 
+  websocketManager: null, // Track WebSocket manager
 
   init() {
+    this.setupPortListener();
+    this.setupMessageListener();
+  },
+
+  setupPortListener() {
     chrome.runtime.onConnect.addListener((port) => {
       if (port.name === 'options') {
-        this.connectedPorts.push(port);
-        log('Options page connected.');
+        this.addPort(port);
         this.sendStatusUpdate();
-
-        port.onDisconnect.addListener(() => {
-          this.connectedPorts = this.connectedPorts.filter((p) => p !== port);
-          log('Options page disconnected.');
-          this.sendStatusUpdate();
-        });
-      }
-    });
-
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      log('Message received:', message, sender);
-
-      if (message.type === 'NEW_SNIPPETS') {
-        this.handleNewSnippets(message.snippets);
-      }
-      if (message.type === 'SYNC') {
-        log('Received sync request from options page.');
-        this.handleSyncRequest();
-        sendResponse({ status: 'received' });
-      }
-      if (message.type === 'SEND_TO_CHAT') {
-        chrome.tabs.query({}, (tabs) => {
-          const tabUrls = tabs.map((tab) => tab.url);
-          tabs.forEach((tab) => {
-            if (tab.url && tab.url.startsWith('https://chatgpt.com/')) {
-              chrome.tabs.sendMessage(tab.id, { type: 'APPEND_PROMPT', message: message.content });
-            }
-          });
-        });
-      }
-      if (message.type === 'ALIVE') {
-        this.contentScriptAlive = true;
-        this.sendStatusUpdate();
-        sendResponse({ status: 'ALIVE received' });
+        port.onDisconnect.addListener(() => this.removePort(port));
       }
     });
   },
 
-  async handleNewSnippets(snippets) {
-    log(`Handling ${snippets.length} new snippets.`);
+  setupMessageListener() {
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      log('Message received:', message, sender);
 
-    // Retrieve user settings
+      const handlers = {
+        NEW_SNIPPETS: () => this.handleNewSnippets(message.snippets),
+        SYNC: () => {
+          log('Received sync request from options page.');
+          this.handleSyncRequest();
+          sendResponse({ status: 'received' });
+        },
+        SEND_TO_CHAT: () => this.handleSendToChat(message.content),
+        ALIVE: () => {
+          this.contentScriptAlive = true;
+          this.sendStatusUpdate();
+          sendResponse({ status: 'ALIVE received' });
+        },
+      };
+
+      if (handlers[message.type]) {
+        handlers[message.type]();
+      }
+    });
+  },
+
+  addPort(port) {
+    this.connectedPorts.push(port);
+    log('Options page connected.');
+  },
+
+  removePort(port) {
+    this.connectedPorts = this.connectedPorts.filter((p) => p !== port);
+    log('Options page disconnected.');
+    this.sendStatusUpdate();
+  },
+
+  handleNewSnippets(snippets) {
+    log(`Handling ${snippets.length} new snippets.`);
     chrome.storage.sync.get(['destination'], (data) => {
       const { destination } = data;
-
       if (!destination) {
         log('Destination not set.');
         return;
       }
-
-      snippets.forEach((snippet) => {
-        this.processSnippet(snippet, destination);
-      });
+      snippets.forEach((snippet) => this.processSnippet(snippet, destination));
     });
   },
 
   handleSyncRequest() {
     chrome.storage.sync.get(['destination'], (data) => {
       const { destination } = data;
-
       if (!destination) {
         log('Destination not set.');
         return;
       }
-
-      if (this.websocketManager && this.websocketManager.socket.readyState === WebSocket.OPEN) {
-        // send sync request to server with destination
-        this.websocketManager.send({ type: 'SYNC', destination });
-      } else {
-        log('WebSocket is not connected. Cannot send message.');
-      }
+      this.sendSyncRequest(destination);
     });
   },
 
+  sendSyncRequest(destination) {
+    if (this.websocketManager?.socket?.readyState === WebSocket.OPEN) {
+      this.websocketManager.send({ type: 'SYNC', destination });
+    } else {
+      log('WebSocket is not connected. Cannot send message.');
+    }
+  },
+
   processSnippet(snippet, destination) {
-    const lines = snippet.content.split('\n');
-    let relativePath = '';
-    let codeContent = '';
+    const { relativePath, codeContent } = this.extractSnippetDetails(snippet);
+    const fullPath = `${relativePath || `./tmp/${snippet.id}.txt`}`;
 
-    const filePathComment = lines[0];
-    const filePathMatch = filePathComment.match(/\s*([A-Za-z]:[\\/](.+)\.(.+))/);
-    if (filePathMatch) {
-      relativePath = filePathMatch[1].trim();
-      codeContent = lines.join('\n');
-      log(`Snippet ID ${snippet.id} has file path: ${relativePath}`);
-    }
+    this.sendMessageToOptions({
+      type: 'DISPLAY_SNIPPET',
+      snippet: { id: snippet.id, filePath: fullPath, content: codeContent },
+    });
 
-    if (!relativePath) {
-      // Fallback to using yyyy-mm-dd-hh-mm-ss.txt as filename
-      relativePath = `./tmp/${new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '')}.txt`;
-      codeContent = snippet.content;
-      log(`Snippet ID ${snippet.id} does not have a file path. Using fallback filename: ${relativePath}`);
-    }
-
-    const fullPath = `${relativePath}`;
-
-    const message = {
+    this.sendSnippetToWebSocket({
       filePath: fullPath,
       content: codeContent,
       id: snippet.id,
-    };
-
-    // Send message to options page to display the snippet
-    this.sendMessageToOptions({
-      type: 'DISPLAY_SNIPPET',
-      snippet: {
-        id: snippet.id,
-        filePath: fullPath,
-        content: codeContent,
-      },
     });
-    log(`Sending snippet ID ${snippet.id} to WebSocket server.`);
+  },
 
-    if (this.websocketManager && this.websocketManager.socket.readyState === WebSocket.OPEN) {
+  extractSnippetDetails(snippet) {
+    const lines = snippet.content.split('\n');
+    const filePathMatch = lines[0].match(/\s*([A-Za-z]:[\\/](.+)\.(.+))/);
+    const relativePath = filePathMatch ? filePathMatch[1].trim() : '';
+    const codeContent = lines.join('\n');
+    log(`Snippet ID ${snippet.id} has file path: ${relativePath || 'No file path found'}`);
+    return { relativePath, codeContent };
+  },
+
+  sendSnippetToWebSocket(message) {
+    if (this.websocketManager?.socket?.readyState === WebSocket.OPEN) {
       this.websocketManager.send(message);
     } else {
       log('WebSocket is not connected. Cannot send message.');
     }
   },
 
+  handleSendToChat(content) {
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach((tab) => {
+        if (tab.url?.startsWith('https://chatgpt.com/')) {
+          chrome.tabs.sendMessage(tab.id, { type: 'APPEND_PROMPT', message: content });
+        }
+      });
+    });
+  },
+
   sendStatusUpdate(status = {}) {
     const overallStatus = {
-      tab: this.contentScriptAlive ? 'connected' : 'disconnected', // Include content script status
-      background: 'active', // Assuming background is always active if this script is running
+      tab: this.contentScriptAlive ? 'connected' : 'disconnected',
+      background: 'active',
       websocket: status.websocket || 'disconnected',
     };
-    this.connectedPorts.forEach((port) => {
-      port.postMessage({ type: 'STATUS_UPDATE', status: overallStatus });
-    });
+    this.connectedPorts.forEach((port) => port.postMessage({ type: 'STATUS_UPDATE', status: overallStatus }));
   },
 
   sendMessageToOptions(message) {
@@ -147,7 +145,6 @@ export const Messaging = {
     this.connectedPorts.forEach((port) => {
       log('Sending message to port:', port);
       port.postMessage(message);
-      log('Message sent to port:', port);
     });
   },
 
