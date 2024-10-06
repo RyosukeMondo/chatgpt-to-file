@@ -1,5 +1,3 @@
-// content/scripts/toggler.js
-
 const Toggler = (() => {
   function toggleCodeVisibility(preElement) {
     const codeElement = preElement.querySelector('code');

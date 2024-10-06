@@ -1,5 +1,3 @@
-// scripts/utils.js
-
 export function log(message, ...optionalParams) {
   console.log(`[OptionsPage] ${message}`, ...optionalParams);
 }

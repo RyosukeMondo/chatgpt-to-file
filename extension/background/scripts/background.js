@@ -1,5 +1,3 @@
-// background/scripts/background.js
-
 import { WebSocketManager } from './websocket.js';
 import { Messaging } from './messaging.js';
 

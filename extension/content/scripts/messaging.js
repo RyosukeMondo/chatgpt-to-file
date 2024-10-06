@@ -1,5 +1,3 @@
-// content/scripts/messaging.js
-
 const Messaging = (() => {
   function sendMessage(message, callback) {
     if (typeof chrome.runtime !== 'undefined' && typeof chrome.runtime.sendMessage === 'function') {
@@ -22,15 +20,13 @@ const Messaging = (() => {
         ContentUtils.log('Message received:', message, sender);
         
         if (message.type === 'APPEND_PROMPT') {
-          // Handle APPEND_PROMPT message
           const promptMessage = message.message;
-          // Perform the necessary action with promptMessage
           ContentUtils.log('APPEND_PROMPT message received:', promptMessage);
-          // Example: Append the prompt message to a specific element
           const promptElement = document.getElementById('prompt-textarea');
           if (promptElement) {
-            const formattedMessage = promptMessage.replace(/\n/g, '<br>');
-            promptElement.innerHTML += `<br>${formattedMessage}`;
+            const lines = promptMessage.split('\n');
+            const formattedMessage = lines.map(line => `<p>${line}</p>`).join('');
+            promptElement.innerHTML += formattedMessage;
           }
         }
 
@@ -41,9 +37,16 @@ const Messaging = (() => {
     }
   }
 
+  function sendAliveMessage() {
+    sendMessage({ type: 'ALIVE' }, (response) => {
+      ContentUtils.log('Alive message response:', response);
+    });
+  }
+
   return {
     sendMessage,
     onMessage,
+    sendAliveMessage,
   };
 })();
 

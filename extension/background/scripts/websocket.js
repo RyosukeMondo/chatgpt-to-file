@@ -1,5 +1,3 @@
-// background/scripts/websocket.js
-
 import { log, normalizePath } from './utils.js';
 import { Messaging } from './messaging.js';
 import { Handler } from '../modules/handler.js';

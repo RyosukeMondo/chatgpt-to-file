@@ -1,5 +1,3 @@
-// content/scripts/observer.js
-
 const Observer = (() => {
   let previousStoppedStatus = false; // Track previous stopped status
 

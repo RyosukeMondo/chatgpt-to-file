@@ -1,5 +1,3 @@
-// scripts/storage.js
-
 import { log, normalizePath } from './utils.js';
 
 export const Storage = {
@@ -66,6 +64,6 @@ export const Storage = {
   },
 
   getFileContent(filePath) {
-    return localStorage.getItem(filePath) || 'No content available.';
+    return filePath + "\n" + localStorage.getItem(filePath) || 'No content available.';
   },
 };

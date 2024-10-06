@@ -1,5 +1,3 @@
-// scripts/ui.js
-
 import { escapeHtml, log } from './utils.js';
 import { Storage } from './storage.js';
 import { Messaging } from './messaging.js';

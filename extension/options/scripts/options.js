@@ -1,5 +1,3 @@
-// scripts/options.js
-
 import { log, normalizePath } from './utils.js';
 import { Storage } from './storage.js';
 import { UI } from './ui.js';

@@ -1,5 +1,3 @@
-// content/scripts/main.js
-
 (function() {
   // Initialize MutationObserver and perform initial setup
   ContentObserver.initObserver();

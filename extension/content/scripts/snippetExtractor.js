@@ -1,11 +1,10 @@
-// content/scripts/snippetExtractor.js
-
 const SnippetExtractor = (() => {
   const sentSnippetIds = new Set();
 
   function isGenerationFinished(previousStoppedStatus, currentStoppedStatus) {
     const generationFinished = previousStoppedStatus && !currentStoppedStatus;
     ContentUtils.log('Generation finished status:', generationFinished);
+    ContentMessaging.sendAliveMessage();
     return generationFinished;
   }
 
@@ -15,7 +14,6 @@ const SnippetExtractor = (() => {
     codeElements.forEach((codeElem, index) => {
       const codeText = codeElem.innerText;
       const lines = codeText.split('\n');
-      // Assuming the first line is a comment with the file path
       if (codeText.includes("\n") && lines.length > 0) {
         snippets.push({
           id: index,

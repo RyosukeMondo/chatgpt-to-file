@@ -1,5 +1,3 @@
-// background/scripts/utils.js
-
 export function log(message, ...optionalParams) {
   console.log(`[Background] ${message}`, ...optionalParams);
 }

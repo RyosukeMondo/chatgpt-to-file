@@ -1,9 +1,8 @@
-// background/scripts/messaging.js
-
 import { log } from './utils.js';
 
 export const Messaging = {
   connectedPorts: [],
+  contentScriptAlive: false, // Track content script status
 
   init() {
     chrome.runtime.onConnect.addListener((port) => {
@@ -40,6 +39,11 @@ export const Messaging = {
             }
           });
         });
+      }
+      if (message.type === 'ALIVE') {
+        this.contentScriptAlive = true;
+        this.sendStatusUpdate();
+        sendResponse({ status: 'ALIVE received' });
       }
     });
   },
@@ -86,21 +90,21 @@ export const Messaging = {
     let codeContent = '';
 
     const filePathComment = lines[0];
-    const filePathMatch = filePathComment.match(/(\/\/|#)\s*((.+)\.(.+))/);
+    const filePathMatch = filePathComment.match(/\s*([A-Za-z]:[\\/](.+)\.(.+))/);
     if (filePathMatch) {
-      relativePath = filePathMatch[2].trim();
+      relativePath = filePathMatch[1].trim();
       codeContent = lines.join('\n');
       log(`Snippet ID ${snippet.id} has file path: ${relativePath}`);
     }
 
     if (!relativePath) {
       // Fallback to using the snippet ID as the filename
-      relativePath = `${snippet.id}.txt`;
+      relativePath = `./tmp/${snippet.id}.txt`;
       codeContent = snippet.content;
       log(`Snippet ID ${snippet.id} does not have a file path. Using fallback filename: ${relativePath}`);
     }
 
-    const fullPath = `${destination}/${relativePath}`; // Use forward slash for cross-platform compatibility
+    const fullPath = `${relativePath}`;
 
     const message = {
       filePath: fullPath,
@@ -113,6 +117,7 @@ export const Messaging = {
       type: 'DISPLAY_SNIPPET',
       snippet: {
         id: snippet.id,
+        filePath: fullPath,
         content: codeContent,
       },
     });
@@ -127,7 +132,7 @@ export const Messaging = {
 
   sendStatusUpdate(status = {}) {
     const overallStatus = {
-      tab: this.connectedPorts.length > 0 ? 'connected' : 'disconnected',
+      tab: this.contentScriptAlive ? 'connected' : 'disconnected', // Include content script status
       background: 'active', // Assuming background is always active if this script is running
       websocket: status.websocket || 'disconnected',
     };

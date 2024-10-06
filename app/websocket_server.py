@@ -38,7 +38,6 @@ async def save_file(full_path, content):
         return final_path
     except Exception as e:
         logging.error(f'Error saving file {full_path}: {e}')
-        raise
 
 
 async def send_all_files(websocket, destination):

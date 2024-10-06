@@ -1,5 +1,3 @@
-// content/scripts/utils.js
-
 const Utils = (() => {
   function log(message, ...optionalParams) {
     console.log(`[ContentScript] ${message}`, ...optionalParams);

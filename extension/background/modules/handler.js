@@ -1,5 +1,3 @@
-// background/modules/handler.js
-
 import { log, normalizePath } from '../scripts/utils.js';
 import { Messaging } from '../scripts/messaging.js';
 
