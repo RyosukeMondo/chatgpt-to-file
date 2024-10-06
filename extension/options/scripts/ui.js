@@ -11,6 +11,7 @@ export const UI = {
       statusDiv: document.getElementById('status'),
       capturedSnippetsDiv: document.getElementById('capturedSnippets'),
       fileListDiv: document.getElementById('fileList'),
+      fileSearchInput: document.getElementById('fileSearchInput'),
       tabStatusIndicator: document.getElementById('tab-status'),
       backgroundStatusIndicator: document.getElementById('background-status'),
       websocketStatusIndicator: document.getElementById('websocket-status'),

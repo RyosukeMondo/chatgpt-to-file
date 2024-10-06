@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusDiv,
     capturedSnippetsDiv,
     fileListDiv,
+    fileSearchInput,
   } = elements;
 
   // Load saved settings
@@ -80,6 +81,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     files.forEach(file => UI.addFileToList(fileListDiv, file));
   }
 
+  // Search functionality to filter files by path
+  fileSearchInput.addEventListener('input', () => {
+    const query = fileSearchInput.value.trim().toLowerCase();
+    filterFilesByPath(query);
+  });
+
+  // Function to filter files based on search query
+  function filterFilesByPath(query) {
+    const files = Storage.getFilesForDestination(normalizePath(destinationInput.value.trim()));
+    fileListDiv.innerHTML = ''; // Clear current list
+
+    const filteredFiles = files.filter(file => file.filePath.toLowerCase().includes(query));
+    filteredFiles.forEach(file => UI.addFileToList(fileListDiv, file));
+  }
+
   // Listen for messages from background script to display captured snippets and files
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === 'DISPLAY_SNIPPET') {
@@ -89,3 +105,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 });
+
