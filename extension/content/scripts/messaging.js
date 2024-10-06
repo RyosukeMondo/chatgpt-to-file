@@ -25,8 +25,12 @@ const Messaging = (() => {
           const promptElement = document.getElementById('prompt-textarea');
           if (promptElement) {
             const lines = promptMessage.split('\n');
-            const formattedMessage = lines.map(line => `<p>${line}</p>`).join('');
-            promptElement.innerHTML += formattedMessage;
+            if(promptMessage.includes("<html")) {
+              promptElement.textContent = "html not supported.";
+            } else {
+              const formattedMessage = lines.map(line => `<p>${line}</p>`).join('');
+              promptElement.innerHTML += formattedMessage;
+            }
           }
         }
 
