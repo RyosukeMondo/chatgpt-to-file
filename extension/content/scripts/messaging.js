@@ -1,49 +1,80 @@
 const Messaging = (() => {
+  const isChromeRuntimeAvailable = () => {
+    return typeof chrome.runtime !== 'undefined';
+  };
+
+  const isSendMessageAvailable = () => {
+    return typeof chrome.runtime.sendMessage === 'function';
+  };
+
+  const isOnMessageAvailable = () => {
+    return typeof chrome.runtime.onMessage.addListener === 'function';
+  };
+
+  const logError = (message) => {
+    ContentUtils.log('Error:', message);
+  };
+
+  const logMessage = (prefix, ...messageParts) => {
+    ContentUtils.log(prefix, ...messageParts);
+  };
+
   function sendMessage(message, callback) {
-    if (typeof chrome.runtime !== 'undefined' && typeof chrome.runtime.sendMessage === 'function') {
+    if (isChromeRuntimeAvailable() && isSendMessageAvailable()) {
       chrome.runtime.sendMessage(message, (response) => {
         if (chrome.runtime.lastError) {
-          ContentUtils.log('Error sending message:', chrome.runtime.lastError);
+          logError(chrome.runtime.lastError);
         } else {
-          ContentUtils.log('Message sent:', message, 'Response:', response);
+          logMessage('Message sent:', message, 'Response:', response);
           if (callback) callback(response);
         }
       });
     } else {
-      ContentUtils.log('Error: chrome.runtime or chrome.runtime.sendMessage is not available.');
+      logError('chrome.runtime or chrome.runtime.sendMessage is not available.');
     }
   }
 
   function onMessage(callback) {
-    if (typeof chrome.runtime !== 'undefined' && typeof chrome.runtime.onMessage.addListener === 'function') {
+    if (isChromeRuntimeAvailable() && isOnMessageAvailable()) {
       chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-        ContentUtils.log('Message received:', message, sender);
-        
-        if (message.type === 'APPEND_PROMPT') {
-          const promptMessage = message.message;
-          ContentUtils.log('APPEND_PROMPT message received:', promptMessage);
-          const promptElement = document.getElementById('prompt-textarea');
-          if (promptElement) {
-            const lines = promptMessage.split('\n');
-            if(promptMessage.includes("<html")) {
-              promptElement.textContent = "html not supported.";
-            } else {
-              const formattedMessage = lines.map(line => `<p>${line}</p>`).join('');
-              promptElement.innerHTML += formattedMessage;
-            }
-          }
-        }
-
+        logMessage('Message received:', message, sender);
+        handleAppendPrompt(message);
         callback(message, sender, sendResponse);
       });
     } else {
-      ContentUtils.log('Error: chrome.runtime or chrome.runtime.onMessage is not available.');
+      logError('chrome.runtime or chrome.runtime.onMessage is not available.');
     }
+  }
+
+  function handleAppendPrompt(message) {
+    if (message.type === 'APPEND_PROMPT') {
+      const promptMessage = message.message;
+      logMessage('APPEND_PROMPT message received:', promptMessage);
+      const promptElement = document.getElementById('prompt-textarea');
+      if (promptElement) {
+        updatePromptContent(promptMessage, promptElement);
+      }
+    }
+  }
+
+  function updatePromptContent(promptMessage, promptElement) {
+    if (promptMessage.includes("")) {
+      promptElement.textContent = "html not supported.";
+    } else {
+      const formattedMessage = formatMessage(promptMessage);
+      promptElement.innerHTML += formattedMessage;
+    }
+  }
+
+  function formatMessage(message) {
+    return message.split('\n').map(line => `
+${line}
+`).join('');
   }
 
   function sendAliveMessage() {
     sendMessage({ type: 'ALIVE' }, (response) => {
-      ContentUtils.log('Alive message response:', response);
+      logMessage('Alive message response:', response);
     });
   }
 
