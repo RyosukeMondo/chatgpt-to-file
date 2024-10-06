@@ -64,14 +64,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Function to save received file
   function saveFile(filePath, content) {
     log('saveFile called with file:', filePath, content.length);
-    const normalizedFilePath = normalizePath(filePath);
     const destination = normalizePath(destinationInput.value.trim());
     if (!destination) {
       log('Save failed: Missing destination.');
       return;
     }
-    Storage.saveFileToLocal(normalizedFilePath, content);
-    UI.addFileToList(fileListDiv, { filePath: normalizedFilePath, content });
+    Storage.saveFileToLocal(filePath, content);
+    UI.addFileToList(fileListDiv, { filePath: filePath, content });
   }
 
   // Function to load files for the current destination

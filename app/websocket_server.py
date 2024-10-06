@@ -16,7 +16,7 @@ logging.basicConfig(
 )
 
 
-async def save_file(full_path, content):
+async def save_file(full_path, content, overwrite=True):
     try:
         directory = os.path.dirname(full_path)
         if not os.path.exists(directory):
@@ -27,10 +27,11 @@ async def save_file(full_path, content):
         counter = 1
         final_path = full_path
 
-        # Avoid overwriting existing files
-        while os.path.exists(final_path):
-            final_path = f"{base}({counter}){extension}"
-            counter += 1
+        if not overwrite:
+            # Avoid overwriting existing files
+            while os.path.exists(final_path):
+                final_path = f"{base}({counter}){extension}"
+                counter += 1
 
         with open(final_path, 'w', encoding='utf-8') as f:
             f.write(content)
