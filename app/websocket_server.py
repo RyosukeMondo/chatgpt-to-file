@@ -40,6 +40,8 @@ async def save_file(full_path, content, overwrite=True):
         if is_first_line_path_comment:
             # Remove the first line if it is a comment
             content = '\n'.join(content.split('\n')[1:])
+            # and remove first blank line
+            content = content.strip()
 
         with open(final_path, 'w', encoding='utf-8') as f:
             f.write(content)
