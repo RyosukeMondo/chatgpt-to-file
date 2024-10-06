@@ -98,8 +98,8 @@ export const Messaging = {
     }
 
     if (!relativePath) {
-      // Fallback to using the snippet ID as the filename
-      relativePath = `./tmp/${snippet.id}.txt`;
+      // Fallback to using yyyy-mm-dd-hh-mm-ss.txt as filename
+      relativePath = `./tmp/${new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '')}.txt`;
       codeContent = snippet.content;
       log(`Snippet ID ${snippet.id} does not have a file path. Using fallback filename: ${relativePath}`);
     }

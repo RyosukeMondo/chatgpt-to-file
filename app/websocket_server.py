@@ -32,6 +32,14 @@ async def save_file(full_path, content, overwrite=True):
             while os.path.exists(final_path):
                 final_path = f"{base}({counter}){extension}"
                 counter += 1
+        is_first_line_path_comment = (
+            content.startswith('//') or
+            content.startswith('#') or
+            content.startswith('/*') or
+            content.startswith('<!--'))
+        if is_first_line_path_comment:
+            # Remove the first line if it is a comment
+            content = '\n'.join(content.split('\n')[1:])
 
         with open(final_path, 'w', encoding='utf-8') as f:
             f.write(content)
