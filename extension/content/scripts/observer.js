@@ -1,48 +1,48 @@
+// path: D:/repos/chatgpt-to-file/extension/content/scripts/observer.js
+
 const Observer = (() => {
-  let previousStoppedStatus = false; // Track previous stopped status
+  let previousStoppedStatus = false;
 
   function handleMutations(mutations) {
-    mutations.forEach(mutation => {
-      mutation.addedNodes.forEach(node => {
-        if (node.nodeType === 1 && node.tagName.toLowerCase() === 'pre') {
-          const classList = Array.from(node.classList);
-          const hasOverflowVisible = classList.some(cls => cls.replace('!', '') === 'overflow-visible');
+    mutations.forEach(processMutation);
+    checkAndExtractSnippets();
+  }
 
-          if (hasOverflowVisible) {
-            ContentToggler.addToggleButton(node);
-          }
-        }
-      });
+  function processMutation(mutation) {
+    mutation.addedNodes.forEach(node => {
+      if (isPreElementWithOverflowVisible(node)) {
+        ContentToggler.addToggleButton(node);
+      }
     });
+  }
 
-    // Check if generation has finished
+  function isPreElementWithOverflowVisible(node) {
+    if (node.nodeType === 1 && node.tagName.toLowerCase() === 'pre') {
+      return Array.from(node.classList).some(cls => cls.replace('!', '') === 'overflow-visible');
+    }
+    return false;
+  }
+
+  function checkAndExtractSnippets() {
     const currentStoppedStatus = checkGenerationStopped();
     if (SnippetExtractor.isGenerationFinished(previousStoppedStatus, currentStoppedStatus)) {
-      const newSnippets = SnippetExtractor.extractCodeSnippets();
-      newSnippets.forEach(snippet => {
-        SnippetExtractor.sendSnippet(snippet);
-      });
+      SnippetExtractor.extractCodeSnippets().forEach(SnippetExtractor.sendSnippet);
     }
     previousStoppedStatus = currentStoppedStatus;
   }
 
   function checkGenerationStopped() {
-    const stopButton = document.querySelector('button[aria-label="ストリーミングの停止"][data-testid="stop-button"]');
-    const isStopped = stopButton !== null;
-    return isStopped;
+    return document.querySelector('button[aria-label="ストリーミングの停止"][data-testid="stop-button"]') !== null;
   }
 
   function initObserver() {
-    const observer = new MutationObserver(handleMutations);
-    observer.observe(document.body, { childList: true, subtree: true });
+    new MutationObserver(handleMutations).observe(document.body, { childList: true, subtree: true });
     ContentUtils.log('MutationObserver initialized.');
   }
 
   function initialCheck() {
-    ContentUtils.log('Initial check for existing <pre> elements');
-    document.querySelectorAll('pre.\\!overflow-visible')?.forEach(preElement => {
-      ContentToggler.addToggleButton(preElement);
-    });
+    ContentUtils.log('Initial check for existing elements');
+    document.querySelectorAll('pre.\\!overflow-visible').forEach(ContentToggler.addToggleButton);
   }
 
   return {
@@ -51,4 +51,4 @@ const Observer = (() => {
   };
 })();
 
-window.ContentObserver = Observer; // Expose to other scripts
+window.ContentObserver = Observer;
