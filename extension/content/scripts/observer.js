@@ -28,6 +28,7 @@ const Observer = (() => {
     const currentStoppedStatus = checkGenerationStopped();
     if (SnippetExtractor.isGenerationFinished(previousStoppedStatus, currentStoppedStatus)) {
       SnippetExtractor.extractCodeSnippets().forEach(SnippetExtractor.sendSnippet);
+
     }
     previousStoppedStatus = currentStoppedStatus;
   }
