@@ -53,7 +53,8 @@ async def save_file(full_path, content, overwrite=True):
 
 async def send_all_files(websocket, destination):
     # Gitで追跡されているファイルのリストを取得
-    result = subprocess.run(['git', 'ls-files'], cwd=destination, capture_output=True, text=True)
+    result = subprocess.run(['git', 'ls-files'], cwd=destination,
+                            capture_output=True, text=True, encoding='utf-8')
     tracked_files = result.stdout.splitlines()
     # ignore binary files
     ignore_exts = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.svg', '.pdf', '.mp4', '.avi', '.mov', '.mp3', '.wav', '.zip', '.tar', '.gz', '.7z', '.rar', '.exe', '.dll', '.so', '.a', '.lib', '.o', '.obj', '.class', '.jar', '.war', '.ear', '.swf', '.flv', '.psd', '.ai', '.eps', '.ttf', '.woff', '.woff2', '.eot', '.otf', '.db', '.sqlite', '.sqlite3', '.db3', '.sql', '.bak', '.log', '.tmp', '.temp', '.cache', '.bak', '.backup', '.old', '.swp', '.swo', '.swn', '.swo', '.swn']

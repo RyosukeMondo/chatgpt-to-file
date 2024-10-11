@@ -17,6 +17,7 @@ const Observer = (() => {
   }
 
   function isPreElementWithOverflowVisible(node) {
+    console.log(node);
     if (node.nodeType === 1 && node.tagName.toLowerCase() === 'pre') {
       return Array.from(node.classList).some(cls => cls.replace('!', '') === 'overflow-visible');
     }
