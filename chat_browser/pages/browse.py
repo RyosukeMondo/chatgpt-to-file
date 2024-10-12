@@ -19,6 +19,7 @@ def main():
     if not Path(monitor_path).exists():
         st.error(f"Monitor path does not exist: {monitor_path}")
         return
+    os.makedirs(parsed_path, exist_ok=True)
     if not Path(parsed_path).exists():
         st.error(f"Parsed path does not exist: {parsed_path}")
         return
