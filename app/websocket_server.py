@@ -120,7 +120,7 @@ async def handler(websocket, path):
                                 'status': 'success',
                                 'content': content
                             }
-                            store_message(content)
+                            store_message(content, snippet_id, file_path)
                         else:
                             response = {
                                 'status': 'error',

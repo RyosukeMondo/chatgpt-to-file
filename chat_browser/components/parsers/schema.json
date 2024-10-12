@@ -1,0 +1,78 @@
+{
+  "message": {
+    "author_role": "assistant",
+    "id": "7dfad81c-69f6-42e0-86d6-ccdb5d34b80b",
+    "model_slug": "o1-mini",
+    "content": {
+      "type": "mixed_content",
+      "items": [
+        {
+          "type": "code_snippet",
+          "title": "Sample Script",
+          "description": "A sample Python script.",
+          "language": "python",
+          "code": "print('Hello, World!')"
+        },
+        {
+          "type": "project_structure",
+          "structure": {
+            "name": "chat_browser",
+            "children": [
+              {
+                "name": "components",
+                "children": [
+                  {"name": "__init__.py", "children": []},
+                  {"name": "config_manager.py", "children": []},
+                  {
+                    "name": "message_parser.py",
+                    "children": []
+                  },
+                  {
+                    "name": "parsers",
+                    "children": [
+                      {"name": "__init__.py", "children": []},
+                      {"name": "base_parser.py", "children": []},
+                      {"name": "parser_type_a.py", "children": []},
+                      {"name": "parser_type_b.py", "children": []}
+                    ]
+                  },
+                  {
+                    "name": "to_markdown.py",
+                    "children": []
+                  },
+                  {
+                    "name": "converters",
+                    "children": [
+                      {"name": "__init__.py", "children": []},
+                      {"name": "base_converter.py", "children": []},
+                      {"name": "markdown_converter.py", "children": []}
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "pages",
+                "children": [
+                  {"name": "__init__.py", "children": []},
+                  {"name": "config.py", "children": []},
+                  {"name": "browse.py", "children": []}
+                ]
+              },
+              {
+                "name": "tmp",
+                "children": [
+                  {"name": "messages", "children": []},
+                  {"name": "parsed", "children": []}
+                ]
+              },
+              {"name": "config.yaml", "children": []},
+              {"name": "main.py", "children": []},
+              {"name": "requirements.txt", "children": []},
+              {"name": "README.md", "children": []}
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
