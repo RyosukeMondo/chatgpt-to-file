@@ -25,6 +25,7 @@
         "content/scripts/messaging.js",
         "content/scripts/toggler.js",
         "content/scripts/snippetExtractor.js",
+        "content/scripts/assistantResponseExtractor.js",
         "content/scripts/observer.js",
         "content/scripts/main.js"
       ],
