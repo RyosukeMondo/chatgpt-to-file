@@ -21,15 +21,16 @@ const AssistantResponseExtractor = (() => {
   function extractAssistantResponses() {
     const assistantElements = document.querySelectorAll("div[data-message-author-role='assistant']");
     const responses = [];
-    const lastElem  = assistantElements[assistantElements.length - 1];
-    const responseText = lastElem.outerHTML.trim();
-    if (responseText && !sentResponseIds.has(getElementUniqueId(lastElem))) {
+    assistantElements.forEach((element) => {
+      const responseText = element.outerHTML.trim();
+      if (responseText && !sentResponseIds.has(getElementUniqueId(element))) {
       responses.push({
-        id: getElementUniqueId(lastElem),
+        id: getElementUniqueId(element),
         content: responseText
       });
-      ContentUtils.log(`Assistant response detected: ID ${getElementUniqueId(lastElem)}`);
-    }
+      ContentUtils.log(`Assistant response detected: ID ${getElementUniqueId(element)}`);
+      }
+    });
     ContentUtils.log(`Total new assistant responses extracted: ${responses.length}`);
     return responses;
   }

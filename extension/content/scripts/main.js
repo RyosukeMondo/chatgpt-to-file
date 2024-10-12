@@ -3,6 +3,7 @@
   ContentObserver.initObserver();
   setTimeout(() => {
     ContentObserver.initialCheck();
+    AssistantResponseExtractor.extractAssistantResponses().forEach(AssistantResponseExtractor.sendResponse);
   }, 3000); // Delay to allow initial DOM elements to load
 
   // Initialize Messaging onMessage listener

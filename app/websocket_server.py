@@ -4,6 +4,7 @@ import json
 import os
 import logging
 import subprocess
+from message_manager import store_message
 
 
 # Configure logging
@@ -93,25 +94,40 @@ async def handler(websocket, path):
                     destination = data.get('destination')
                     await send_all_files(websocket, destination)
                 else:
+                    kind = data.get('kind')
                     file_path = data.get('filePath')
                     content = data.get('content')
                     snippet_id = data.get('id')
-
-                    if file_path and content:
-                        saved_path = await save_file(file_path, content)
-                        response = {
-                            'status': 'success',
-                            'savedPath': saved_path,
-                            'id': snippet_id
-                        }
-                    else:
-                        response = {
-                            'status': 'error',
-                            'message': 'Invalid message format.',
-                            'id': snippet_id
-                        }
-                    await websocket.send(json.dumps(response))
-                    logging.debug(f'Sent response: {response}')
+                    if kind == 'snippet' and snippet_id:
+                        if file_path and content:
+                            saved_path = await save_file(file_path, content)
+                            response = {
+                                'status': 'success',
+                                'savedPath': saved_path,
+                                'id': snippet_id
+                            }
+                        else:
+                            response = {
+                                'status': 'error',
+                                'message': 'Invalid message format.',
+                                'id': snippet_id
+                            }
+                        await websocket.send(json.dumps(response))
+                        logging.debug(f'Sent response: {response}')
+                    elif kind == 'assistant':
+                        if content:
+                            response = {
+                                'status': 'success',
+                                'content': content
+                            }
+                            store_message(content)
+                        else:
+                            response = {
+                                'status': 'error',
+                                'message': 'Invalid message format.'
+                            }
+                        await websocket.send(json.dumps(response))
+                        logging.debug(f'Sent response: {response}')
             except json.JSONDecodeError:
                 response = {
                     'status': 'error',

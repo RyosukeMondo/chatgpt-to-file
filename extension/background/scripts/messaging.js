@@ -25,13 +25,23 @@ export const Messaging = {
       log('Message received:', message, sender);
 
       const handlers = {
-        NEW_SNIPPETS: () => this.handleNewSnippets(message.snippets),
+        NEW_SNIPPETS: () => {
+          this.handleNewSnippets(message.snippets)
+          sendResponse({ status: 'received' }); 
+        },
+        NEW_ASSISTANT_RESPONSES: () => {
+          this.handleAssistantResponse(message.responses[0]);
+          sendResponse({ status: 'received' });
+        },
         SYNC: () => {
           log('Received sync request from options page.');
           this.handleSyncRequest();
           sendResponse({ status: 'received' });
         },
-        SEND_TO_CHAT: () => this.handleSendToChat(message.content),
+        SEND_TO_CHAT: () => {
+          this.handleSendToChat(message.content);
+          sendResponse({ status: 'received' });
+        },
         ALIVE: () => {
           this.contentScriptAlive = true;
           this.sendStatusUpdate();
@@ -54,6 +64,24 @@ export const Messaging = {
     this.connectedPorts = this.connectedPorts.filter((p) => p !== port);
     log('Options page disconnected.');
     this.sendStatusUpdate();
+  },
+
+  handleAssistantResponse(response) {
+    const { id, content } = response;
+    log('Received assistant response:', id);
+    chrome.storage.sync.get(['destination'], (data) => {
+      const { destination } = data;
+      if (!destination) {
+        log('Destination not set.');
+        return;
+      }
+      this.sendSnippetToWebSocket({
+        kind: 'assistant',
+        filePath: destination,
+        content,
+        id,
+      });
+    });
   },
 
   handleNewSnippets(snippets) {
@@ -97,6 +125,7 @@ export const Messaging = {
     });
 
     this.sendSnippetToWebSocket({
+      kind: 'snippet',
       filePath: fullPath,
       content: codeContent,
       id: snippet.id,
