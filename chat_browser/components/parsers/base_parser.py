@@ -1,5 +1,5 @@
-# components/parsers/base_parser.py
 from abc import ABC, abstractmethod
+
 
 class BaseParser(ABC):
     @abstractmethod

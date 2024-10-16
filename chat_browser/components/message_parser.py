@@ -1,14 +1,12 @@
 # components/message_parser.py
 import os
 import json
-from .parsers.base_parser import BaseParser
-from .parsers.parser_type_a import ParserTypeA
-from .parsers.parser_type_b import ParserTypeB
+from chat_browser.components.parsers.parser_type_a import ParserTypeA
 
 
 class MessageParser:
     def __init__(self):
-        self.parsers = [ParserTypeA(), ParserTypeB()]  # Add more parsers as needed
+        self.parsers = [ParserTypeA()]  # Add more parsers as needed
 
     def parse(self, html_content):
         for parser in self.parsers:
@@ -17,6 +15,7 @@ class MessageParser:
                 if parsed:
                     return parsed
             except Exception as e:
+                print(f"Error occurred while parsing with {parser.__class__.__name__}: {e}")
                 continue
         raise ValueError("No suitable parser found for the given HTML content.")
 

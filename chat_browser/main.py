@@ -1,6 +1,6 @@
 # main.py
 import streamlit as st
-from chat_browser.pages import browse, config
+from pages import browse, config
 
 
 st.set_page_config(page_title="Chat Browser", layout="wide")

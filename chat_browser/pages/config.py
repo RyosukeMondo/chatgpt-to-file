@@ -1,6 +1,6 @@
-# pages/config.py
 import streamlit as st
 from components.config_manager import ConfigManager
+
 
 def main():
     st.title("Configuration")
@@ -17,6 +17,7 @@ def main():
         }
         config_manager.save_config(new_config)
         st.success("Configuration saved successfully!")
+
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,10 @@
-# pages/browse.py
 import streamlit as st
 import os
 from pathlib import Path
 from components.config_manager import ConfigManager
 from components.message_parser import MessageParser
 from components.to_markdown import ConverterManager
+from components.code_writer import write_code_snippets  # Import the code_writer
 import json
 
 
@@ -59,7 +59,7 @@ def main():
         parsed_file = os.path.join(parsed_path, f"{Path(selected_file).stem}.json")
 
         if os.path.exists(parsed_file):
-            # add button to remove existing parsed_file.
+            # Add button to remove existing parsed_file.
             if st.button("Remove existing parsed file"):
                 os.remove(parsed_file)
                 st.success("Removed existing parsed file.")
@@ -83,6 +83,12 @@ def main():
                     return
 
             st.markdown(markdown_content, unsafe_allow_html=True)
+
+            # Add the "Apply Code" button
+            st.markdown("---")  # Separator
+            if st.button("Apply Code"):
+                with st.spinner("Applying code snippets..."):
+                    write_code_snippets(parsed_json)
         else:
             st.error("Parsed file not found.")
 

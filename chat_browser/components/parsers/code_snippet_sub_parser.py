@@ -1,4 +1,3 @@
-# components/parsers/code_snippet_sub_parser.py
 from .base_sub_parser import BaseSubParser
 import logging
 

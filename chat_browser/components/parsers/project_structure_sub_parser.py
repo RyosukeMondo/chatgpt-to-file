@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 from .base_sub_parser import BaseSubParser
 
 
