@@ -42,7 +42,8 @@ def main():
         html_file_path = os.path.join(monitor_path, selected_file)
         # show in max height 400 with scrollable content
         st.components.v1.html(
-            f'<div style="height: 400px; overflow-y: scroll;">{open(html_file_path, "r", encoding="utf-8").read()}</div>',
+            f'<div style="height: 400px; overflow-y: scroll;">{
+                open(html_file_path, "r", encoding="utf-8").read()}</div>',
             height=400
         )
 
@@ -66,7 +67,7 @@ def main():
 
             with open(parsed_file, 'r', encoding='utf-8') as f:
                 parsed_json = json.load(f)
-            
+
             st.json(parsed_json)
 
             converter = ConverterManager()
