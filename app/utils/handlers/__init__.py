@@ -16,6 +16,7 @@ EXTENSION_HANDLER_MAP = {
     '.html': HTMLHandler(),
     '.htm': HTMLHandler(),
     '.css': CSSHandler(),
+    '.go': JavaScriptHandler(),
     # Add other extensions and their handlers here
 }
 
