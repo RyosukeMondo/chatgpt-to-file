@@ -1,6 +1,6 @@
 import os
 import importlib
-from .base_converter import BaseConverter
+from chat_browser.components.converters.base_converter import BaseConverter
 import logging
 
 logging.basicConfig(level=logging.INFO)

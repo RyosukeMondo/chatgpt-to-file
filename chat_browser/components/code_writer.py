@@ -30,7 +30,7 @@ def write_code_snippets(parsed_json):
                 replacement = f"\\1 Path: {path}\\2"
                 code = re.sub(pattern, replacement, code)
 
-            if is_complete and include_full_path:
+            if is_complete:
                 # Extract the path from the first line comment
                 lines = code.splitlines()
                 if lines:
