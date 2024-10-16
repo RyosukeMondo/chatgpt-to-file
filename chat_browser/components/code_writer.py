@@ -21,7 +21,6 @@ def write_code_snippets(parsed_json):
     failure_count = 0
     for item in items:
         if item.get('type') == 'code_snippet':
-            is_complete = item.get('is_complete_code', False)
             include_full_path = item.get('include_full_path', False)
             code = item.get('code', '')
 
@@ -30,46 +29,45 @@ def write_code_snippets(parsed_json):
                 replacement = f"\\1 Path: {path}\\2"
                 code = re.sub(pattern, replacement, code)
 
-            if is_complete:
-                # Extract the path from the first line comment
-                lines = code.splitlines()
-                if lines:
-                    if ("# " in lines[0] or  # Shell, Bash, PowerShell
-                            "// " in lines[0] or  # Python, JavaScript
-                            "/*" in lines[0] or  # C, C++, Java
-                            "<!--" in lines[0]):
-                        path_comment = lines[0]
-                    if ("// " in lines[1] or  # Python, JavaScript
-                            "<!--" in lines[1]):  # HTML, XML
-                        path_comment = lines[1]
+            # Extract the path from the first line comment
+            lines = code.splitlines()
+            if lines:
+                if ("# " in lines[0] or  # Shell, Bash, PowerShell
+                        "// " in lines[0] or  # Python, JavaScript
+                        "/*" in lines[0] or  # C, C++, Java
+                        "<!--" in lines[0]):
+                    path_comment = lines[0]
+                if ("// " in lines[1] or  # Python, JavaScript
+                        "<!--" in lines[1]):  # HTML, XML
+                    path_comment = lines[1]
 
-                    file_path = path_comment.split('Path:')[1].strip()
-                    if not include_full_path and not os.path.exists(file_path):
-                        st.warning(f"fail to guess file_path: {file_path}")
-                        continue
-                    if file_path:
-                        try:
-                            # Ensure the directory exists
-                            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                texts = path_comment.split('path:')
+                if len(texts) > 1:
+                    file_path = texts[1].strip()
+                if not include_full_path and not os.path.exists(file_path):
+                    st.warning(f"fail to guess file_path: {file_path}")
+                    continue
+                if file_path:
+                    try:
+                        # Ensure the directory exists
+                        os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-                            # Write the code to the file
-                            with open(file_path, 'w', encoding='utf-8') as f:
-                                # Include the path as a comment in the file content
-                                f.write(f"# {file_path}\n")
-                                f.write('\n'.join(lines[1:]))  # Exclude the path comment
+                        # Write the code to the file
+                        with open(file_path, 'w', encoding='utf-8') as f:
+                            # remove path include comment line
+                            lines = [line for line in lines if "path:" not in line]
+                            f.write('\n'.join(lines).strip())  # Exclude the path comment
 
-                            success_count += 1
-                            st.success(f"Successfully wrote to {file_path}")
-                        except Exception as e:
-                            failure_count += 1
-                            st.error(f"Failed to write to {file_path}: {e}")
-                    else:
+                        success_count += 1
+                        st.success(f"Successfully wrote to {file_path}")
+                    except Exception as e:
                         failure_count += 1
-                        st.error("File path is missing in the code snippet.")
+                        st.error(f"Failed to write to {file_path}: {e}")
                 else:
                     failure_count += 1
-                    st.error("Code snippet does not include a valid path comment.")
+                    st.error("File path is missing in the code snippet.")
             else:
-                st.info("Skipping incomplete code snippet or missing path information.")
+                failure_count += 1
+                st.error("Code snippet does not include a valid path comment.")
 
     st.info(f"Code application completed: {success_count} succeeded, {failure_count} failed.")
