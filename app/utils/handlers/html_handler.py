@@ -3,6 +3,7 @@
 import os
 import logging
 
+
 class HTMLHandler:
     """
     Handler for HTML files.

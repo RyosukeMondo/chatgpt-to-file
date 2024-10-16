@@ -3,8 +3,8 @@ import json
 import logging
 
 import websockets
-from handlers.message_handler import handle_message
-from config.logging_config import setup_logging
+from app.handlers.message_handler import handle_message
+from app.config.logging_config import setup_logging
 
 # Initialize logging
 setup_logging()
