@@ -1,5 +1,4 @@
 # components/parsers/code_snippet_sub_parser.py
-from bs4 import BeautifulSoup
 from .base_sub_parser import BaseSubParser
 import logging
 
@@ -20,7 +19,10 @@ class CodeSnippetSubParser(BaseSubParser):
             # Fallback to class names in <code>
             code_tag = element.find('code')
             if code_tag and any(cls.startswith('language-') for cls in code_tag.get('class', [])):
-                language = next(cls.split('language-')[1] for cls in code_tag.get('class', []) if cls.startswith('language-'))
+                language = next(cls.split('language-')[1]
+                                for cls
+                                in code_tag.get('class', [])
+                                if cls.startswith('language-'))
             else:
                 language = 'plaintext'
 
@@ -46,11 +48,16 @@ class CodeSnippetSubParser(BaseSubParser):
             title = 'Code Snippet'
             desc = description
 
+        is_complete_code = "existing code" not in code
+        include_full_path = " Path: " in code
+
         self.logger.info("Successfully parsed a code snippet.")
         return {
             "type": "code_snippet",
             "title": title if title else "Code Snippet",
             "description": desc,
             "language": language,
-            "code": code
+            "code": code,
+            "is_complete_code": is_complete_code,
+            "include_full_path": include_full_path
         }
