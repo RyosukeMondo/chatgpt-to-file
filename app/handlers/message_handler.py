@@ -1,19 +1,19 @@
 import json
 import logging
 
-from utils.file_utils import save_file, send_all_files
-from managers.message_manager import store_message
+from app.utils.file_utils import save_file, send_all_files
+from app.managers.message_manager import store_message
 
 
 async def handle_message(message, websocket):
     """
     Main entry point for handling incoming WebSocket messages.
     Delegates processing based on the message type.
-    
+
     Args:
         message (str): The raw JSON message received from the WebSocket.
         websocket (WebSocketServerProtocol): The WebSocket connection.
-    
+
     Returns:
         dict or None: Response to send back to the client, or None if handled internally.
     """
@@ -33,11 +33,11 @@ async def handle_message(message, websocket):
 async def handle_sync_message(data, websocket):
     """
     Handles messages of type 'SYNC' by sending all tracked files to the client.
-    
+
     Args:
         data (dict): The parsed JSON data.
         websocket (WebSocketServerProtocol): The WebSocket connection.
-    
+
     Returns:
         dict or None: Error response if destination is missing, else None.
     """
@@ -53,11 +53,11 @@ async def handle_sync_message(data, websocket):
 async def handle_data_message(data, websocket):
     """
     Handles data messages based on their 'kind' field.
-    
+
     Args:
         data (dict): The parsed JSON data.
         websocket (WebSocketServerProtocol): The WebSocket connection.
-    
+
     Returns:
         dict: Response to send back to the client.
     """
@@ -74,10 +74,10 @@ async def handle_data_message(data, websocket):
 async def handle_snippet_message(data):
     """
     Processes 'snippet' kind messages by saving the provided file content.
-    
+
     Args:
         data (dict): The parsed JSON data.
-    
+
     Returns:
         dict: Success or error response.
     """
@@ -115,10 +115,10 @@ async def handle_snippet_message(data):
 def handle_assistant_message(data):
     """
     Processes 'assistant' kind messages by storing the message content.
-    
+
     Args:
         data (dict): The parsed JSON data.
-    
+
     Returns:
         dict: Success or error response.
     """
@@ -140,11 +140,11 @@ def handle_assistant_message(data):
 def generate_error_response(message, snippet_id=None):
     """
     Generates a standardized error response.
-    
+
     Args:
         message (str): The error message.
         snippet_id (str, optional): The snippet ID if applicable.
-    
+
     Returns:
         dict: The error response.
     """

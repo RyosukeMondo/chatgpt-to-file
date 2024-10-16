@@ -39,4 +39,4 @@ def save_to_file(html_text, message_id, project_path):
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(f'<path>{project_path}</path>\n')
         f.write(html_text)
-    print(f'Saved message to: {file_path}')
+    # print(f'Saved message to: {file_path}')

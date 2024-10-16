@@ -2,8 +2,8 @@ import json
 import os
 import logging
 import re
-from utils.git_utils import get_tracked_files
-from utils.handlers import get_handler_for_extension
+from app.utils.git_utils import get_tracked_files
+from app.utils.handlers import get_handler_for_extension
 
 logging.basicConfig(level=logging.DEBUG)
 
