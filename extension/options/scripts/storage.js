@@ -64,7 +64,7 @@ export const Storage = {
   },
 
   getFileContent(filePath) {
-    return `path: ${filePath}\n(must include path in file content as comment) \n` 
+    return `Path: ${filePath}\n(must include path in file content as comment) \n` 
       + localStorage.getItem(filePath) || 'No content available.';
   },
 };
