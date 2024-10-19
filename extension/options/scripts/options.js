@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       log('Save failed: Missing destination.');
       return;
     }
+    destinationInput.value = destination; // Update the input field with the normalized path
     Storage.clearFilesForDestination(destination);
     await Storage.setSyncData({ destination });
     UI.displayStatus(statusDiv, 'Options saved successfully!', 'success');

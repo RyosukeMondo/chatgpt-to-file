@@ -3,7 +3,7 @@ export function log(message, ...optionalParams) {
 }
 
 export function normalizePath(path) {
-  return path.replace(/\\/g, '/').replace(/\/+/g, '/').replace(/^\.\//, '');
+  return (path + "/").replace(/\\/g, '/').replace(/\/+/g, '/').replace(/^\.\//, '');
 }
 
 export function escapeHtml(text) {
