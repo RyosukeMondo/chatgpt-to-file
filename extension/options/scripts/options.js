@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Save settings handler
   saveButton.addEventListener('click', async () => {
-    const destination = normalizePath(destinationInput.value.trim());
+    const destination = normalizePath(destinationInput.value.trim() + '/');
     if (!destination) {
       UI.displayStatus(statusDiv, 'Destination path is required.', 'error');
       log('Save failed: Missing destination.');
