@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime
 
@@ -18,4 +19,4 @@ def store_message(html_text, message_id, project_path):
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(f'<path>{project_path}</path>\n')
         f.write(html_text)
-    print(f'Saved message to: {file_path}')
+    logging.INFO(f'Saved message to: {file_path}')
