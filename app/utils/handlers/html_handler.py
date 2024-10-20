@@ -86,5 +86,5 @@ if __name__ == "__main__":
 </html>
 """
     processed_content, final_path = handler.process_content(sample_content, "index/index.html", overwrite=True)
-    print("Processed Content:\n", processed_content)
-    print("Final Path:", final_path)
+    logging.debug("Processed Content:\n", processed_content)
+    logging.info("Final Path:", final_path)

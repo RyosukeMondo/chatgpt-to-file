@@ -1,4 +1,5 @@
 # components/message_parser.py
+import logging
 import os
 import json
 from chat_browser.components.parsers.parser_type_a import ParserTypeA
@@ -15,7 +16,7 @@ class MessageParser:
                 if parsed:
                     return parsed
             except Exception as e:
-                print(f"Error occurred while parsing with {parser.__class__.__name__}: {e}")
+                logging.error(f"Error occurred while parsing with {parser.__class__.__name__}: {e}")
                 continue
         raise ValueError("No suitable parser found for the given HTML content.")
 
@@ -23,7 +24,7 @@ class MessageParser:
         filename = os.path.basename(html_file)
         parsed_file = os.path.join(parsed_path, f"{os.path.splitext(filename)[0]}.json")
         if os.path.exists(parsed_file):
-            print(f"Parsed file {parsed_file} already exists. Skipping.")
+            logging.warning(f"Parsed file {parsed_file} already exists. Skipping.")
             return
 
         with open(html_file, 'r', encoding='utf-8') as f:

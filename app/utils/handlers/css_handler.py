@@ -68,6 +68,7 @@ class CSSHandler:
             counter += 1
         return final_path
 
+
 # Example Usage:
 if __name__ == "__main__":
     handler = CSSHandler()
@@ -79,5 +80,5 @@ body {
 }
 """
     processed_content, final_path = handler.process_content(sample_content, "styles/styles.css", overwrite=True)
-    print("Processed Content:\n", processed_content)
-    print("Final Path:", final_path)
+    logging.debug("Processed Content:\n", processed_content)
+    logging.info("Final Path:", final_path)

@@ -5,7 +5,7 @@ import re
 from app.utils.git_utils import get_tracked_files
 from app.utils.handlers import get_handler_for_extension
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 async def save_file(full_path, content, overwrite=True):
@@ -95,7 +95,7 @@ async def send_all_files(websocket, destination):
                 'filePath': file_path,
                 'content': content
             }
-            print("sent:", file_path)
+            logging.info("sent:", file_path)
             await websocket.send(json.dumps(message))
             logging.debug(f'Sent file content: {file_path}')
         except Exception as e:

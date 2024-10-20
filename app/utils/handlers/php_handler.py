@@ -88,5 +88,5 @@ if __name__ == "__main__":
 echo 'Hello, PHP World!';
 """
     processed_content, final_path = handler.process_content(sample_content, "app/app.php", overwrite=True)
-    print("Processed Content:\n", processed_content)
-    print("Final Path:", final_path)
+    logging.debug("Processed Content:\n", processed_content)
+    logging.info("Final Path:", final_path)
