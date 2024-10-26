@@ -95,7 +95,7 @@ async def send_all_files(websocket, destination):
                 'filePath': file_path,
                 'content': content
             }
-            logging.info("sent:", file_path)
+            print("sent:", file_path)
             await websocket.send(json.dumps(message))
             logging.debug(f'Sent file content: {file_path}')
         except Exception as e:

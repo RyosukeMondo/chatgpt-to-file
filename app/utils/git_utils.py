@@ -5,7 +5,7 @@ import logging
 async def get_tracked_files(destination):
     try:
         result = subprocess.run(
-            ['git', 'ls-files'],
+            ['git', 'ls-files', '--cached', '--others', '--exclude-standard'],
             cwd=destination,
             capture_output=True,
             text=True,
