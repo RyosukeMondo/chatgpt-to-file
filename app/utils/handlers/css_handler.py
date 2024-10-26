@@ -1,7 +1,6 @@
-# handlers/css_handler.py
-
 import os
 import logging
+
 
 class CSSHandler:
     """

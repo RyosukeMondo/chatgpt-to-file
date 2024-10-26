@@ -18,7 +18,7 @@ def store_message(content, snippet_id=None, file_path=None):
         }
         message_store.append(message)
         save_to_file(content, snippet_id, file_path)
-        logging.info(f'Message stored: {message}')
+        logging.debug(f'Message stored: {message}')
     except Exception as e:
         logging.error(f'Error storing message: {e}')
 

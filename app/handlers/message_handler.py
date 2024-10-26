@@ -81,7 +81,7 @@ async def handle_snippet_message(data):
     Returns:
         dict: Success or error response.
     """
-    file_path = data.get('filePath')
+    file_path = data.get('filePath').split(' ')[0]
     content = data.get('content')
     snippet_id = data.get('id')
 
